@@ -54,12 +54,12 @@ namespace TouchScript.Devices.Display
             Name = Application.platform.ToString();
             if (IsLaptop) Name += " (Laptop)";
 
-            updateNativeResulotion();
+            updateNativeResolution();
             updateNativeDPI();
             UpdateDPI();
         }
 
-        private void updateNativeResulotion()
+        private void updateNativeResolution()
         {
             switch (Application.platform)
             {

@@ -307,7 +307,6 @@ namespace TouchScript.InputSources.InputHandlers
 
         public static void UpdateWindowsInput(IntPtr[] hwnds, List<(IntPtr, ushort)> windowHandles)
         {
-            Debug.LogError($"UpdateWindowsInput {hwnds.Length} is it? {TouchManager.Instance is MonoBehaviour}");
 #if !UNITY_EDITOR
 #pragma warning disable CS4014
             if (TouchManager.Instance is MonoBehaviour touchManagerGo)
@@ -353,7 +352,6 @@ namespace TouchScript.InputSources.InputHandlers
             winTouchToInternalId.Clear();
 
 #if !UNITY_EDITOR
-            // it doesn't need the configuration parameter check since if it is disabled "windowHandles" is empty
             foreach (var h in windowHandles) ResetTouchSettingToWindow(h.Item1, h.Item2);
 #endif
 
@@ -597,26 +595,25 @@ namespace TouchScript.InputSources.InputHandlers
 
         private static IEnumerator setTouchSettingToWindowCo(Action action)
         {
-            // [https://ctinnovation.atlassian.net/browse/KALI-7539?atlOrigin=eyJpIjoiODE3NTQ5MmY0YTk0NDk1ZGI4MjI2NjY4NTAzMjRjYzkiLCJwIjoiaiJ9]
-            // Lo scopo � "consumare" il touch input gestito da Windows senza che questi
-            // interferisca con gesture particolari impostate a livello utente nei Windows Settings
+            // Lo scopo e' "consumare" il touch input gestito da Windows senza che questi
+            // interferisca con gesture particolari impostate a livello utente nei Windows Settings.
             // In Windows 11 sono state introdotte impostazioni in merito alle gestures touch (edge gestures, 3-4 fingers gestures)
-            // che, se abilitate, pregiudicano l'utilizzo di app touch dato che queste vengono gestite direttamente dal sistema operativo
+            // che, se abilitate, pregiudicano l'utilizzo di app touch dato che queste vengono gestite direttamente dal sistema operativo.
             // Da documentazione Microsoft [https://learn.microsoft.com/en-us/windows/apps/design/input/touch-developer-guide#custom-touch-interactions]
-            // non vi � alcun modo "ufficiale" per risolvere il problema a meno della disattivazione da parte dell'utente di queste impostazioni
-            // Nonostante ci�, si � trovato un metodo "non ufficiale" che sfrutta API di "shell32.dll" per "simulare" l'utilizzo di Theater
-            // in un ambiente Windows di tipo "kiosk"
+            // non vi e' alcun modo "ufficiale" per risolvere il problema a meno della disattivazione da parte dell'utente di queste impostazioni.
+            // Nonostante cio', si e' trovato un metodo "non ufficiale" che sfrutta API di "shell32.dll"
+            // per "simulare" l'utilizzo di una app touch in un ambiente Windows di tipo "kiosk".
             // In particolare, andiamo a settare la property [https://learn.microsoft.com/en-us/windows/win32/properties/props-system-edgegesture-disabletouchwhenfullscreen]
             // che disabilita le "Edge Gestures" solo per le Window in Fullscreen.
-            // Come effetto collaterale si ottiene anche la disabilitazione delle "3-4 fingers Gestures" solo quando la Window � in focus ed in Foreground
+            // Come effetto collaterale si ottiene anche la disabilitazione delle "3-4 fingers Gestures" solo quando la Window e' in focus ed in Foreground
             // e solo in seguito:
-            // - ad uno "scambio" di focus tra Theater ed un'altra Window (nello stesso Display)
-            // - oppure ad un cambiamento di modalit� della Window da "Windowed" a "FullscreenWindow"
-            // Nel primo caso abbiamo il problema che le "3-4 fingers gestures" non vengono disattivate all'avvio dell'app anche se la Window � in Focus ed in Foreground,
-            // nel secondo caso invece, forzando il cambio di FullscreenMode, riusciamo sempre ad applicare alla Window l'effetto collaterale
+            // - ad uno "scambio" di focus tra la Unity Window ed un'altra Window (nello stesso Display)
+            // - oppure ad un cambio di modalita' della Unity Window da "Windowed" a "FullscreenWindow"
+            // Nel primo caso abbiamo il problema che le "3-4 fingers gestures" non vengono disattivate all'avvio dell'app anche se la Unity Window e' in Focus ed in Foreground,
+            // nel secondo caso invece, forzando il cambio di FullscreenMode, riusciamo sempre ad applicare alla Unity Window l'effetto collaterale.
             // Utilizziamo quindi il secondo caso (ottenibile programmaticamente e riguardante solo l'app) stando attenti che Unity
             // permette il cambio di FullscreenMode anche tramite combinazione di tasti ATL + ENTER e che salva il nuovo valore di FullscreenMode
-            // nel registro di Windows al path "HKEY_CURRENT_USER\Software\[CompanyName]\[ProductName]\Screenmanager Fullscreen mode_h3630240806"
+            // nel registro di Windows al path "HKEY_CURRENT_USER\Software\[CompanyName]\[ProductName]\Screenmanager Fullscreen mode_<characters>"
 
             Screen.fullScreen = false;
             yield return null;
