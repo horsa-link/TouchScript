@@ -222,7 +222,7 @@ namespace TouchScript.Core
 		// Cache delegates
 		private Func<TouchLayer, bool> _layerAddPointer, _layerUpdatePointer, _layerRemovePointer, _layerCancelPointer;
 
-        // Used in layer dispatch fucntions
+        // Used in layer dispatch functions
         private Pointer tmpPointer;
 
 #if TOUCHSCRIPT_DEBUG
@@ -310,8 +310,7 @@ namespace TouchScript.Core
             {
                 if (inputs[i] is MultiWindowStandardInput {WindowsGesturesManagement: true})
                 {
-                    
-                    // se viene aggiunta una window le risettiamo tutte
+                    // if there is a new Window we reset all of them
                     inputs[i].UpdateWindowsInput(DisplayDevices.Instance.WindowHandles);
                 }
             }

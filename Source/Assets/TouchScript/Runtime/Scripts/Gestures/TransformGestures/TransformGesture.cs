@@ -260,7 +260,7 @@ namespace TouchScript.Gestures.TransformGestures
         {
             if (isTransforming)
             {
-                dS = MaxScaleReached ? Mathf.Clamp(dS, 0, 1.1f) : dS;   // se ho riaggiunto la scala massima ridimensiono il fattore di scaling per tenere sotto una certa soglia lo spostamento
+                dS = MaxScaleReached ? Mathf.Clamp(dS, 0, 1.1f) : dS;   // if we reach the MaxScale we reduce the translation factor of the scaling
 
                 var new1 = projectionParams.ProjectTo(newScreenPos1, TransformPlane);
                 var old1 = projectScaledRotated(oldScreenPos1, dR, dS, projectionParams);
@@ -308,7 +308,7 @@ namespace TouchScript.Gestures.TransformGestures
         }
 
         /// <summary>
-        /// Calcola il vettore di "spostamento" tra <paramref name="vector1"/> e <paramref name="vector2"/>.
+        /// Returns the translation Vector3 between <paramref name="vector1"/> and <paramref name="vector2"/>.
         /// </summary>
         /// <param name="vector1"></param>
         /// <param name="vector2"></param>

@@ -319,7 +319,7 @@ namespace TouchScript.Behaviors
                 var newLocalScale = Vector3.Lerp(scale, targetScale, fraction);
                 if (newLocalScale.Equals(Vector3.positiveInfinity) || newLocalScale.Equals(Vector3.negativeInfinity))
                 {
-                    newLocalScale = lastScale;//protezione nel caso in cui la scala sia infinita
+                    newLocalScale = lastScale;
                 }
                 // Prevent recalculating colliders when no scale occurs.
                 if (newLocalScale != scale)
@@ -379,9 +379,9 @@ namespace TouchScript.Behaviors
                 }
                 */
 
-                // se abbiamo rilasciato ogni pointer sulla Gesture associata a questo Transformer
-                // vuol dire che siamo nello stato di smoothing/inerzia
-                // solo in questo caso andiamo a fare l'override di posizione/rotazione/scala in update
+                // if every pointer of the Gesture associated with this Transformer has been released
+                // it means that we are still updating because we are in the Smoothing or Inertia state.
+                // Only in this case we override the position / rotation / scale in the 'update' function
                 if (gesture.NumPointers == 0)
                 {
                     if (EnableOverrideTargetPosition && OverrideTargetPosition != null)
@@ -408,7 +408,7 @@ namespace TouchScript.Behaviors
                 }
             }
 
-            OnSmoothingUpdate?.Invoke(this, null);  // siamo sicuri che "enableSmoothing" sia True
+            OnSmoothingUpdate?.Invoke(this, null);  // if we are in the 'update' function the Smoothing is enabled for sure
 
             if (state == TransformerState.Automatic && !changed)
             {
