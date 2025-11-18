@@ -216,13 +216,13 @@ namespace TouchScript.Layers.UI
             }
 
             /// <summary>
-            /// La lista di gameObject che, se target di un PointerEventData, devono consumare l'evento ma non inoltrarlo alle interfacce dell'EventSystem di Unity
+            /// List of GameObject that, if target in a PointerEventData, should consume the event but not forward it to Unity's EventSystem interfaces
             /// </summary>
             private List<GameObject> _ignoreGos = new List<GameObject>();
 
             /// <summary>
-            /// Indica se il gameObject <paramref name="go"/> deve consumare il pointer ma non inoltrarlo alle interfacce dell'EventSystem di Unity.<br/>
-            /// Il controllo viene fatto per gameObject e per parent di un gameObject all'interno della lista.
+            /// Returns True if <paramref name="go"/> should consume the pointer but not forward it to Unity's EventSystem interfaces, False otherwise.<br/>
+            /// The check is done by looking for <paramref name="go"/> in the list or by looking for a GameObject in the list that is the parent of <paramref name="go"/>.
             /// </summary>
             /// <param name="go"></param>
             /// <returns></returns>
@@ -245,7 +245,7 @@ namespace TouchScript.Layers.UI
             }
 
             /// <summary>
-            /// Rimuove tutti gli elementi uguali a null dalla lista di GameObject da ignorare
+            /// Removes all 'null' items from <see cref="_ignoreGos"/>
             /// </summary>
             private void CleanGosIgnored()
             {
@@ -253,7 +253,7 @@ namespace TouchScript.Layers.UI
             }
 
             /// <summary>
-            /// Rimuove tutti gli elementi dalla lista di GameObject da ignorare
+            /// Removes all items from <see cref="_ignoreGos"/>
             /// </summary>
             public void ClearGosIgnored()
             {
@@ -264,7 +264,7 @@ namespace TouchScript.Layers.UI
             }
 
             /// <summary>
-            /// Aggiunge i <paramref name="gos"/> alla lista di GameObject da ignorare
+            /// Adds <paramref name="gos"/> to <see cref="_ignoreGos"/>
             /// </summary>
             /// <param name="gos"></param>
             public void AddGosIgnored(GameObject[] gos)
@@ -278,7 +278,7 @@ namespace TouchScript.Layers.UI
             }
 
             /// <summary>
-            /// Aggiunge <paramref name="go"/> alla lista di GameObject da ignorare
+            /// Adds <paramref name="go"/> to <see cref="_ignoreGos"/>
             /// </summary>
             /// <param name="go"></param>
             /// <returns></returns>
@@ -305,7 +305,7 @@ namespace TouchScript.Layers.UI
             }
 
             /// <summary>
-            /// Rimuove i <paramref name="gos"/> dalla lista di GameObject da ignorare
+            /// Removes <paramref name="gos"/> from <see cref="_ignoreGos"/>
             /// </summary>
             /// <param name="gos"></param>
             public void RemoveGosIgnored(GameObject[] gos)
@@ -319,7 +319,7 @@ namespace TouchScript.Layers.UI
             }
 
             /// <summary>
-            /// Rimuove <paramref name="go"/> dalla lista di GameObject da ignorare
+            /// Removes <paramref name="go"/> from <see cref="_ignoreGos"/>
             /// </summary>
             /// <param name="go"></param>
             /// <returns></returns>
@@ -408,7 +408,7 @@ namespace TouchScript.Layers.UI
                 if (!allow)
                 {
                     // Otherwise, user held down key or axis.
-                    // If direction didn't change at least 90 degrees, wait for delay before allowing consequtive event.
+                    // If direction didn't change at least 90 degrees, wait for delay before allowing consecutive event.
                     if (similarDir && m_ConsecutiveMoveCount == 1) allow = (time > m_PrevActionTime + input.RepeatDelay);
                     // If direction changed at least 90 degree, or we already had the delay, repeat at repeat rate.
                     else allow = (time > m_PrevActionTime + 1f / input.InputActionsPerSecond);
@@ -738,7 +738,7 @@ namespace TouchScript.Layers.UI
                     data.pointerEnter = null;
 
                     // redo pointer enter / exit to refresh state
-                    // so that if we moused over somethign that ignored it before
+                    // so that if we moused over something that ignored it before
                     // due to having pressed on something else
                     // it now gets it.
                     if (currentOverGo != data.pointerEnter)

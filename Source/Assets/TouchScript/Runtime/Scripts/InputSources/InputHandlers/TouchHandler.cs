@@ -230,7 +230,6 @@ namespace TouchScript.InputSources.InputHandlers
             systemToInternalId.Clear();
 
 #if !UNITY_EDITOR
-            // it doesn't need the configuration parameter check since if it is disabled "windowHandles" is empty
             foreach (var h in windowHandles) WindowsPointerHandler.ResetTouchSettingToWindow(h.Item1, h.Item2);
 #endif
         }

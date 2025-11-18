@@ -924,6 +924,7 @@ namespace TouchScript.Gestures
                         break;
                     case GestureState.Idle:
                     case GestureState.Possible:
+                    case GestureState.Changed:
                     case GestureState.Failed:
                     case GestureState.Cancelled:
                         delayedStateChange = GestureState.Idle;

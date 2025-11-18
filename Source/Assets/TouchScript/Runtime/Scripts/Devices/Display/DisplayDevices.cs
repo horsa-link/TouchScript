@@ -21,7 +21,7 @@ namespace TouchScript.Devices.Display
 
         public Action<Display[]> OnDisplaysConnected;
         public Action<Display[]> OnDisplaysDisconnected;
-        //public Action<Display[]> OnDisplaysDeactivated;  // impossibile, Unity non lo permette
+        //public Action<Display[]> OnDisplaysDeactivated;  // Not implemented, Unity doesn't allow display deactivation
         public Action<Display[]> OnDisplaysActivated;
         public Action<IntPtr[]> OnWindowsDeactivated;
         public Action<IntPtr[]> OnWindowsActivated;
@@ -58,9 +58,8 @@ namespace TouchScript.Devices.Display
         {
             processID = Process.GetCurrentProcess().Id;
             onDisplaysUpdated();
-            // a causa di un bug di Unity, questo evento non serve a niente dopo la fase di boot dell'app
-            // manteniamo cmq la logica in caso di un fix
-            // https://issuetracker.unity3d.com/issues/display-dot-displays-does-not-update-when-connecting-slash-disconnecting-an-external-display-on-a-build
+            // due to a Unity bug: https://issuetracker.unity3d.com/issues/display-dot-displays-does-not-update-when-connecting-slash-disconnecting-an-external-display-on-a-build
+            // this callback won't fire after the app boot, keeping it for future fix
             Display.onDisplaysUpdated += onDisplaysUpdated;
         }
 
@@ -166,7 +165,7 @@ namespace TouchScript.Devices.Display
 #endif
             if (windows != null)
             {
-                // handle delle window rimosse
+                // list of Window handles removed
                 var toRemove = new List<IntPtr>();
                 for (var j = 0; j < _windowHandles.Length; j++)
                 {
@@ -187,7 +186,7 @@ namespace TouchScript.Devices.Display
                         Debug.Log($"Window deactivated: {_windowHandles[j].ToString("X")}");
                     }
                 }
-                // aggiungo gli handle delle window aggiunte e attivate
+                // we add the new and activated Window handles
                 var toAdd = new List<IntPtr>();
                 for (var j = 0; j < windows.Count; j++)
                 {
@@ -214,12 +213,12 @@ namespace TouchScript.Devices.Display
                 OnWindowsActivated?.Invoke(toAdd.ToArray());
             }
 
-            // controlliamo se la gerarchia delle window ha subito cambiamenti
+            // check if the Window hierarchy has changed
             var changed = precWindowHandles.Length != _windowHandles.Length;
             if (changed)
             {
-                // se il numero di window corrente � diverso da quello precedente,
-                // notifichiamo subito del cambiamento
+                // if the current window count is not equal to the previous one,
+                // we notify that there is a change in the Window hierarchy
                 return true;
             }
 
@@ -237,14 +236,14 @@ namespace TouchScript.Devices.Display
 
                 if (!found)
                 {
-                    // se l'array di windows corrente non contiene anche solo una delle window dell'array precedente,
-                    // notifichiamo subito del cambiamento
+                    // if the current Window handles array does not contain even one of the Window handles of the previous array,
+                    // we notify that there is a change in the Window hierarchy
                     return true;
                 }
             }
 
-            // se l'array di windows corrente contiene tutte le window dell'array precedente,
-            // notifichiamo che non c'� stato alcun cambiamento
+            // if the current Window handles array contains all of the Window handles in the previous array,
+            // we notify that there is no change in the Window hierarchy
             return false;
         }
 
@@ -272,8 +271,7 @@ namespace TouchScript.Devices.Display
             if (_checkForWindows && Time.frameCount % 30 == 0)
             {
                 Debug.Log("Checking window changes");
-                // termino di controllare le Window solo se c'� stato un cambiamento nella
-                // gerarchia delle Window nel SO (aggiunta/rimozione di window)
+                // we finish to check for new Window handles only if there is a Window hierarchy change at SO level (window added/removed)
                 if(onWindowsUpdated())
                 {
                     _checkForWindows = false;

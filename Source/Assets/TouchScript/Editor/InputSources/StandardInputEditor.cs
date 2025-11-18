@@ -2,10 +2,10 @@
  * @author Valentin Simonov / http://va.lent.in/
  */
 
+using TouchScript.Editor.EditorUI;
 using TouchScript.InputSources;
 using UnityEditor;
 using UnityEngine;
-using TouchScript.Editor.EditorUI;
 
 namespace TouchScript.Editor.InputSources
 {
@@ -25,12 +25,14 @@ namespace TouchScript.Editor.InputSources
         public static readonly GUIContent TEXT_WINDOWS7_MOUSE = new GUIContent("Enable Mouse on Windows 7");
         public static readonly GUIContent TEXT_UWP_MOUSE = new GUIContent("Enable Mouse on UWP");
 
+        public static readonly GUIContent TEXT_WINDOWSGESTURES_MANAGEMENT = new GUIContent("Manages Windows gestures");
         public static readonly GUIContent TEXT_HELP = new GUIContent("This component gathers input data from various devices like touch, mouse and pen on all platforms.");
 
         private SerializedProperty basicEditor;
 
         private SerializedProperty windows8Touch, windows7Touch, webGLTouch, windows8Mouse,
-                                   windows7Mouse, universalWindowsMouse, emulateSecondMousePointer;
+                                   windows7Mouse, universalWindowsMouse, emulateSecondMousePointer,
+                                   windowsGesturesManagement;
 
         private SerializedProperty generalProps, windowsProps, webglProps;
 
@@ -49,6 +51,7 @@ namespace TouchScript.Editor.InputSources
             windows7Mouse = serializedObject.FindProperty("windows7Mouse");
             universalWindowsMouse = serializedObject.FindProperty("universalWindowsMouse");
             emulateSecondMousePointer = serializedObject.FindProperty("emulateSecondMousePointer");
+            windowsGesturesManagement = serializedObject.FindProperty("windowsGesturesManagement");
 
             generalProps = serializedObject.FindProperty("generalProps");
             windowsProps = serializedObject.FindProperty("windowsProps");
@@ -115,6 +118,7 @@ namespace TouchScript.Editor.InputSources
                 EditorGUILayout.PropertyField(windows8Mouse, TEXT_WINDOWS8_MOUSE);
                 EditorGUILayout.PropertyField(windows7Mouse, TEXT_WINDOWS7_MOUSE);
                 EditorGUILayout.PropertyField(universalWindowsMouse, TEXT_UWP_MOUSE);
+                EditorGUILayout.PropertyField(windowsGesturesManagement, TEXT_WINDOWSGESTURES_MANAGEMENT);
                 EditorGUI.indentLevel--;
             }
         }

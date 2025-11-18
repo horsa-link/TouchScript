@@ -174,11 +174,6 @@ namespace TouchScript.Behaviors
         [SerializeField]
         private float inertiaFactor = 4f;
 
-        /// <summary>
-        /// Indicates if the Transformer is in its Inertia state; it requires smoothing enabled
-        /// </summary>
-        private bool isInInertiaState;
-
         private TransformerState state;
 
         private TransformGestureBase gesture;
@@ -192,6 +187,7 @@ namespace TouchScript.Behaviors
         private Vector3 lastPosition, lastScale;
         private Quaternion lastRotation;
 
+        public Func<TransformGestureBase> OverrideGesture;
         public bool EnableOverrideTargetPosition;
         public Func<Vector3, Vector3> OverrideTargetPosition;
         public bool EnableOverrideTargetRotation;
@@ -199,9 +195,17 @@ namespace TouchScript.Behaviors
         public bool EnableOverrideTargetScale;
         public Func<Vector3, Vector3> OverrideTargetScale;
         /// <summary>
+        /// Event that is invoked while the Transformer is lerping towards the targetPosition, it requires smoothing enabled
+        /// </summary>
+        public EventHandler OnSmoothingUpdate;
+        /// <summary>
         /// Event fired at the end of the smoothing to manage repositions
         /// </summary>
         public UnityAction OnSmoothingEnded;
+        /// <summary>
+        /// Indicates if the Transformer is in its Inertia state; it requires smoothing enabled
+        /// </summary>
+        public bool IsInInertiaState { get; private set; } = false;
         /// <summary>
         /// Transformer state
         /// </summary>
@@ -218,7 +222,7 @@ namespace TouchScript.Behaviors
 
         private void OnEnable()
         {
-            gesture = GetComponent<TransformGestureBase>();
+            gesture = OverrideGesture != null ? OverrideGesture.Invoke() : GetComponent<TransformGestureBase>();
             gesture.StateChanged += stateChangedHandler;
             TouchManager.Instance.FrameFinished += frameFinishedHandler;
 
@@ -239,7 +243,7 @@ namespace TouchScript.Behaviors
             var prevState = state;
             setState(TransformerState.Idle);
 
-            isInInertiaState = false;
+            IsInInertiaState = false;
 
             if (enableSmoothing && prevState == TransformerState.Automatic)
             {
@@ -315,7 +319,7 @@ namespace TouchScript.Behaviors
                 var newLocalScale = Vector3.Lerp(scale, targetScale, fraction);
                 if (newLocalScale.Equals(Vector3.positiveInfinity) || newLocalScale.Equals(Vector3.negativeInfinity))
                 {
-                    newLocalScale = lastScale;//protezione nel caso in cui la scala sia infinita
+                    newLocalScale = lastScale;
                 }
                 // Prevent recalculating colliders when no scale occurs.
                 if (newLocalScale != scale)
@@ -374,6 +378,25 @@ namespace TouchScript.Behaviors
                     }
                 }
                 */
+
+                // if every pointer of the Gesture associated with this Transformer has been released
+                // it means that we are still updating because we are in the Smoothing or Inertia state.
+                // Only in this case we override the position / rotation / scale in the 'update' function
+                if (gesture.NumPointers == 0)
+                {
+                    if (EnableOverrideTargetPosition && OverrideTargetPosition != null)
+                    {
+                        targetPosition = OverrideTargetPosition.Invoke(targetPosition);
+                    }
+                    if (EnableOverrideTargetRotation && OverrideTargetRotation != null)
+                    {
+                        targetRotation = OverrideTargetRotation.Invoke(targetRotation);
+                    }
+                    if (EnableOverrideTargetScale && OverrideTargetScale != null)
+                    {
+                        targetScale = OverrideTargetScale.Invoke(targetScale);
+                    }
+                }
                 transform.position = Vector3.Lerp(pos, targetPosition, fraction);
 
                 // Something might have adjusted our position (most likely Unity UI).
@@ -385,10 +408,7 @@ namespace TouchScript.Behaviors
                 }
             }
 
-            if (enableInertia && isInInertiaState)
-            {
-                OnInertiaUpdate?.Invoke(this, null);
-            }
+            OnSmoothingUpdate?.Invoke(this, null);  // if we are in the 'update' function the Smoothing is enabled for sure
 
             if (state == TransformerState.Automatic && !changed)
             {
@@ -458,7 +478,7 @@ namespace TouchScript.Behaviors
                         velocity = TransformDirection(velocity);
                         var newPos = velocity + targetPosition;
                         targetPosition = newPos;
-                        isInInertiaState = true;
+                        IsInInertiaState = true;
                     }
                     stateAutomatic();
                     break;
@@ -503,14 +523,39 @@ namespace TouchScript.Behaviors
         /// </summary>
         public void ResetState()
         {
-            targetPosition = lastPosition = cachedTransform.position;
-            targetScale = lastScale = cachedTransform.localScale;
-            targetRotation = lastRotation = cachedTransform.rotation;
+            if (cachedTransform != null)
+            {
+                targetPosition = lastPosition = cachedTransform.position;
+                targetScale = lastScale = cachedTransform.localScale;
+                targetRotation = lastRotation = cachedTransform.rotation;
+            }
         }
 
         /// <summary>
         /// Forces idle state
         /// </summary>
         public void SetIdleState() => stateIdle();
+
+        public void SetTransformGesture(TransformGestureBase gesture)
+        {
+            if (gesture != null && this.gesture != gesture)
+            {
+                // old
+                if (this.gesture != null)
+                {
+                    this.gesture.StateChanged -= stateChangedHandler;
+                }
+
+                Debug.Log($"[{GetInstanceID()}] SetTransformGesture, from {this.gesture?.GetInstanceID()} to {gesture.GetInstanceID()}");
+
+                // new
+                this.gesture = gesture;
+                this.gesture.StateChanged += stateChangedHandler;
+
+                stateIdle();
+
+                ResetState();
+            }
+        }
     }
 }

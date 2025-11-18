@@ -267,8 +267,8 @@ namespace TouchScript.InputSources
             mouseHandler?.UpdateWindowsInput(hwnds);
             touchHandler?.UpdateWindowsInput(hwnds);
 #if UNITY_STANDALONE_WIN && !UNITY_EDITOR
-            if(windows8PointerHandler != null) windows8PointerHandler.UpdateWindowsInput(hwnds);
-            if(windows7PointerHandler != null) windows7PointerHandler.UpdateWindowsInput(hwnds);
+            windows8PointerHandler?.UpdateWindowsInput(hwnds);
+            windows7PointerHandler?.UpdateWindowsInput(hwnds);
 #endif
         }
 
