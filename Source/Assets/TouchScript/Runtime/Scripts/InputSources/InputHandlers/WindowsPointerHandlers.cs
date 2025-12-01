@@ -615,14 +615,14 @@ namespace TouchScript.InputSources.InputHandlers
 
             Screen.fullScreen = false;
             yield return null;
-            Screen.SetResolution(Screen.mainWindowDisplayInfo.width - 1, Screen.mainWindowDisplayInfo.height - 1, FullScreenMode.Windowed);
+            Screen.SetResolution(Screen.width - 1, Screen.height - 1, FullScreenMode.Windowed);
             yield return null;
 
             action?.Invoke();
 
             Screen.fullScreen = true;
             yield return null;
-            Screen.SetResolution(Screen.mainWindowDisplayInfo.width, Screen.mainWindowDisplayInfo.height, FullScreenMode.FullScreenWindow);
+            Screen.SetResolution(Screen.width, Screen.height, FullScreenMode.FullScreenWindow);
 
             setScaling();
         }

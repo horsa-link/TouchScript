@@ -312,7 +312,7 @@ namespace TouchScript.Behaviors.Cursors
         }
 
         /// <summary>
-        /// This method is called once when the cursor is initialized.
+        /// This method is called once at each cursor state change.
         /// </summary>
         /// <param name="pointer"> The pointer. </param>
         protected virtual void updateOnce(IPointer pointer) {}
