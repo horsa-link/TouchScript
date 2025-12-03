@@ -220,7 +220,7 @@ namespace TouchScript.InputSources.InputHandlers
             mouseHandler.EmulateSecondMousePointer = emulateSecondMousePointer;
             mouseHandler.TargetDisplay = TargetDisplay;
             
-            Debug.Log($"[TouchScript] Initialized Unity mouse input for {TargetDisplay + 1}.");
+            Debug.Log($"[TouchScript] Initialized Unity mouse input for display {TargetDisplay + 1}.");
         }
 
 #if !UNITY_EDITOR
