@@ -71,7 +71,6 @@ namespace TouchScript.InputSources.InputHandlers
             {
                 windowsGesturesManagement = value;
 #if UNITY_STANDALONE_WIN && !UNITY_EDITOR
-                Debug.LogError($"pointer {pointerHandler}");
                 if (pointerHandler != null) pointerHandler.WindowsGesturesManagement = value;
 #endif
             }
