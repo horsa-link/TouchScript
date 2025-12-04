@@ -37,7 +37,7 @@ namespace TouchScript.Debugging.Loggers
             }
             catch (IOException e)
             {
-                Debug.LogFormat("Error opening file at '{0}'. {1}", path, e.Message);
+                ConsoleLogger.Log($"Error opening file at '{path}'. {e.Message}");
             }
 
             try

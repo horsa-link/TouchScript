@@ -7,6 +7,8 @@ using UnityEngine.SceneManagement;
 #if !UNITY_EDITOR
 using System.Diagnostics;
 using System.Text;
+using TouchScript.Debugging.Loggers;
+
 # if UNITY_STANDALONE_WIN
 using TouchScript.Utils.Platform;
 using Debug = UnityEngine.Debug;
@@ -158,7 +160,7 @@ namespace TouchScript.Core
                 {
                     targetDisplayWindowHandles.Add(targetDisplay, windowHandle);
 
-                    UnityEngine.Debug.Log($"[TouchScript]: Registered window handle for display {targetDisplay + 1}.");
+                    ConsoleLogger.Log($"Registered window handle for display {targetDisplay + 1}.");
                     
                     return windowHandle;
                 }
@@ -195,8 +197,8 @@ namespace TouchScript.Core
                 unityWindowHandles.Add(window);
             }
 
-#  if TOUCHSCRIPT_DEBUG
-            Debug.Log($"[TouchScript]: Found {unityWindowHandles.Count} windows.");
+#  if TOUCHSCRIPT_DEBUG            
+            ConsoleLogger.Log($"Found {unityWindowHandles.Count} windows.");
 #  endif
         }
 
@@ -204,14 +206,14 @@ namespace TouchScript.Core
         private void RefreshWindowHandles()
         {
 #  if TOUCHSCRIPT_DEBUG
-            Debug.Log($"[TouchScript]: RefreshWindowHandles.");
+            ConsoleLogger.Log($"RefreshWindowHandles.");
 #  endif
 
             unityWindowHandles.Clear();
             pointerHandlerSystem.GetWindowsOfProcess(Process.GetCurrentProcess().Id, unityWindowHandles);
 
 #  if TOUCHSCRIPT_DEBUG
-            Debug.Log($"[TouchScript]: Found {unityWindowHandles.Count} windows.");
+            ConsoleLogger.Log($"Found {unityWindowHandles.Count} windows.");
 #  endif
         }
 # endif

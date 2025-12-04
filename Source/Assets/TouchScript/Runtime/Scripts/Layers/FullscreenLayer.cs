@@ -2,6 +2,7 @@
  * @author Valentin Simonov / http://va.lent.in/
  */
 
+using TouchScript.Debugging.Loggers;
 using TouchScript.Hit;
 using TouchScript.Pointers;
 using UnityEngine;
@@ -164,7 +165,7 @@ namespace TouchScript.Layers
                     break;
                 case LayerType.MainCamera:
                     _camera = Camera.main;
-                    if (_camera == null) Debug.LogError("No Main camera found!");
+                    if (_camera == null) ConsoleLogger.LogError("No Main camera found!");
                     break;
             }
             setName();
