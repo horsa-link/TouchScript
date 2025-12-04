@@ -105,10 +105,10 @@ namespace TouchScript.InputSources.InputHandlers
                     ConsoleLogger.Log("[libX11TouchMultiWindow.so]: " + message);
                     break;
                 case 2:
-                    ConsoleLogger.Warning("[libX11TouchMultiWindow.so]: " + message);
+                    ConsoleLogger.LogWarning("[libX11TouchMultiWindow.so]: " + message);
                     break;
                 case 3:
-                    ConsoleLogger.Error("[libX11TouchMultiWindow.so]: " + message);
+                    ConsoleLogger.LogError("[libX11TouchMultiWindow.so]: " + message);
                     break;
             }
         }

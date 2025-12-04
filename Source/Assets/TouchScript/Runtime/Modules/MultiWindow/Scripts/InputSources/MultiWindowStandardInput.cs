@@ -231,7 +231,7 @@ namespace TouchScript.InputSources.InputHandlers
             var window = multiWindowManager.GetWindowHandle(targetDisplay);
             if (window == IntPtr.Zero)
             {
-                ConsoleLogger.Error($"Failed to initialize Windows pointer input for display {TargetDisplay + 1}.");
+                ConsoleLogger.LogError($"Failed to initialize Windows pointer input for display {TargetDisplay + 1}.");
                 return;
             }
 
@@ -249,7 +249,7 @@ namespace TouchScript.InputSources.InputHandlers
             var window = multiWindowManager.GetWindowHandle(targetDisplay);
             if (window == IntPtr.Zero)
             {
-                ConsoleLogger.Error($"Failed to initialize X11 pointer input for display {TargetDisplay + 1}.");
+                ConsoleLogger.LogError($"Failed to initialize X11 pointer input for display {TargetDisplay + 1}.");
                 return;
             }
 

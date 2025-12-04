@@ -4,14 +4,16 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using TouchScript.Debugging.Loggers;
 using TouchScript.Devices.Display;
 using TouchScript.Editor.EditorUI;
 using TouchScript.Layers;
 using UnityEditor;
+using UnityEditor.PackageManager;
 using UnityEditorInternal;
 using UnityEngine;
 using Object = UnityEngine.Object;
-using System.Reflection;
 
 namespace TouchScript.Editor
 {
@@ -26,6 +28,7 @@ namespace TouchScript.Editor
 
         public static readonly GUIContent TEXT_DEBUG_MODE = new GUIContent("Debug", "Turns on debug mode.");
         public static readonly GUIContent TEXT_DISPLAY_DEVICE = new GUIContent("Display Device", "Display device properties where such parameters as target DPI are stored.");
+        public static readonly GUIContent TEXT_LOG_LEVEL = new GUIContent("Log Level", "Sets the Log Level of TouchScript");
         public static readonly GUIContent TEXT_CREATE_CAMERA_LAYER = new GUIContent("Create Camera Layer", "Indicates if TouchScript should create a CameraLayer for you if no layers present in a scene. This is usually a desired behavior but sometimes you would want to turn this off if you are using TouchScript only to get input from some device.");
         public static readonly GUIContent TEXT_CREATE_STANDARD_INPUT = new GUIContent("Create Standard Input", "");
         public static readonly GUIContent TEXT_SEND_MESSAGE_TARGET = new GUIContent("Target", "The GameObject target of Unity Messages. If null, host GameObject is used.");
@@ -38,7 +41,7 @@ namespace TouchScript.Editor
         private SerializedProperty basicEditor;
         private SerializedProperty debugMode;
 
-        private SerializedProperty layers, displayDevice, shouldCreateCameraLayer, shouldCreateStandardInput,
+        private SerializedProperty layers, displayDevice, logLevel, shouldCreateCameraLayer, shouldCreateStandardInput,
                                    useSendMessage, sendMessageTarget, sendMessageEvents;
 
         private SerializedProperty OnFrameStart, OnFrameFinish, OnPointersAdd, OnPointersUpdate, OnPointersPress,
@@ -54,6 +57,7 @@ namespace TouchScript.Editor
             debugMode = serializedObject.FindProperty("debugMode");
             layers = serializedObject.FindProperty("layers");
             displayDevice = serializedObject.FindProperty("displayDevice");
+            logLevel = serializedObject.FindProperty("logLevel");
             shouldCreateCameraLayer = serializedObject.FindProperty("shouldCreateCameraLayer");
             shouldCreateStandardInput = serializedObject.FindProperty("shouldCreateStandardInput");
 
@@ -130,6 +134,19 @@ namespace TouchScript.Editor
             if (display)
             {
                 EditorGUI.indentLevel++;
+
+                var r1 = EditorGUILayout.GetControlRect(true, 16f, EditorStyles.layerMaskField);
+                var label1 = EditorGUI.BeginProperty(r1, TEXT_LOG_LEVEL, logLevel);
+                EditorGUI.BeginChangeCheck();
+                r1 = EditorGUI.PrefixLabel(r1, label1);
+                var sPopup = (TouchScript.Debugging.Loggers.LogLevel)EditorGUI.EnumPopup(r1, instance.LogLevel);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    instance.LogLevel = sPopup;
+                    EditorUtility.SetDirty(instance);
+                }
+                EditorGUI.EndProperty();
+
                 using (new EditorGUI.DisabledGroupScope(Application.isPlaying))
                 {
                     EditorGUILayout.PropertyField(shouldCreateCameraLayer, TEXT_CREATE_CAMERA_LAYER);
@@ -202,7 +219,7 @@ namespace TouchScript.Editor
                     var label = EditorGUI.BeginProperty(r, TEXT_SEND_MESSAGE_EVENTS, sendMessageEvents);
                     EditorGUI.BeginChangeCheck();
                     r = EditorGUI.PrefixLabel(r, label);
-                    var sMask = (TouchManager.MessageType) EditorGUI.EnumMaskField(r, instance.SendMessageEvents);
+                    var sMask = (TouchManager.MessageType)EditorGUI.EnumMaskField(r, instance.SendMessageEvents);
                     if (EditorGUI.EndChangeCheck())
                     {
                         instance.SendMessageEvents = sMask;
@@ -236,7 +253,7 @@ namespace TouchScript.Editor
             }
             else
             {
-                var allLayers = FindObjectsOfType(typeof(TouchLayer)).Cast<TouchLayer>().ToList();
+                var allLayers = FindObjectsByType(typeof(TouchLayer), FindObjectsInactive.Exclude, FindObjectsSortMode.None).Cast<TouchLayer>().ToList();
                 var toRemove = new List<int>();
                 for (var i = 0; i < layers.arraySize; i++)
                 {

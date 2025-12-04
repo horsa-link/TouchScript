@@ -3,24 +3,25 @@ using UnityEngine;
 
 namespace TouchScript.Debugging.Loggers
 {
-    public class ConsoleLogger
+    public enum LogLevel
     {
-        public enum LoggerLevel
-        {
-            None,
-            Exception,
-            Error,
-            Warning,
-            Assert,
-            Log
-        }
+        None,
+        Exception,
+        Error,
+        Assert,
+        Warning,
+        Log
+    }
+    
+    internal class ConsoleLogger
+    {
 
-        public static LoggerLevel Level = LoggerLevel.Log;
+        public static LogLevel Level = LogLevel.Log;
 
         public static void LogException(Exception exception, UnityEngine.Object context = null)
         {
 //#if TOUCHSCRIPT_DEBUG
-            if (Level >= LoggerLevel.Exception)
+            if (Level >= LogLevel.Exception)
             {
                 Debug.LogException(exception, context);
             }
@@ -30,7 +31,7 @@ namespace TouchScript.Debugging.Loggers
         public static void LogError(string message, UnityEngine.Object context = null)
         {
 //#if TOUCHSCRIPT_DEBUG
-            if (Level >= LoggerLevel.Error)
+            if (Level >= LogLevel.Error)
             {
                 Debug.LogError($"[TouchScript] {message}", context);
             }
@@ -39,33 +40,32 @@ namespace TouchScript.Debugging.Loggers
 
         public static void LogWarning(string message, UnityEngine.Object context = null)
         {
-#if TOUCHSCRIPT_DEBUG
-            if (Level > LoggerLevel.Error)
+//#if TOUCHSCRIPT_DEBUG
+            if (Level >= LogLevel.Warning)
             {
                 Debug.LogWarning($"[TouchScript] {message}", context);
             }
-#endif
+//#endif
         }
 
         public static void LogAssertion(string message, UnityEngine.Object context = null)
         {
-#if TOUCHSCRIPT_DEBUG
-            if (Level >= LoggerLevel.Assert)
+//#if TOUCHSCRIPT_DEBUG
+            if (Level >= LogLevel.Assert)
             {
                 Debug.LogAssertion($"[TouchScript] {message}", context);
             }
-#endif
+//#endif
         }
-
 
         public static void Log(string message, UnityEngine.Object context = null)
         {
-#if TOUCHSCRIPT_DEBUG
-            if (Level >= LoggerLevel.Log)
+//#if TOUCHSCRIPT_DEBUG
+            if (Level >= LogLevel.Log)
             {
                 Debug.Log($"[TouchScript] {message}", context);
             }
-#endif
+//#endif
         }
     }
 }

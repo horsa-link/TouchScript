@@ -172,7 +172,7 @@ namespace TouchScript.InputSources.InputHandlers
                                 }
                                 else
                                 {
-                                    ConsoleLogger.Error($"Duplicate PointerEvent.Down event for id {id}");
+                                    ConsoleLogger.LogError($"Duplicate PointerEvent.Down event for id {id}");
                                 }
                                 break;
                             case PointerEvent.Update:
@@ -190,7 +190,7 @@ namespace TouchScript.InputSources.InputHandlers
                                 }
                                 else
                                 {
-                                    ConsoleLogger.Error($"Duplicate PointerEvent.Up event for id {id}");
+                                    ConsoleLogger.LogError($"Duplicate PointerEvent.Up event for id {id}");
                                 }
                         
                                 break;
