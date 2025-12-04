@@ -3,6 +3,7 @@
  */
 
 using System;
+using TouchScript.Debugging.Loggers;
 using TouchScript.Gestures;
 using TouchScript.Gestures.TransformGestures;
 using TouchScript.Gestures.TransformGestures.Base;
@@ -370,10 +371,10 @@ namespace TouchScript.Behaviors
                         targetPosition.y = pos.y;
                     if (!Mathf.Approximately(pos.z, lastPosition.z))
                         targetPosition.z = pos.z;
-                    Debug.Log("Last position " + lastPosition + " pos x " + pos.x + " state " + state + " target " + targetPosition + " fraction " + fraction + " approx " + !Mathf.Approximately(pos.x, lastPosition.x));
+                    UnityConsoleLogger.Log($"Last position {lastPosition} pos x  {pos.x} state {state} target {targetPosition} fraction {fraction} approx {!Mathf.Approximately(pos.x, lastPosition.x)}");
                     if (Mathf.Approximately(targetPosition.x, pos.x))
                     {
-                        Debug.Log("Position stays the same " + pos.x + " temp " + targetPosition.x);
+                        UnityConsoleLogger.Log($"Position stays the same {pos.x} temp {targetPosition.x}");
                         targetPosition = temp;
                     }
                 }
@@ -546,7 +547,7 @@ namespace TouchScript.Behaviors
                     this.gesture.StateChanged -= stateChangedHandler;
                 }
 
-                Debug.Log($"[{GetInstanceID()}] SetTransformGesture, from {this.gesture?.GetInstanceID()} to {gesture.GetInstanceID()}");
+                UnityConsoleLogger.Log($"[{GetInstanceID()}] SetTransformGesture, from {this.gesture?.GetInstanceID()} to {gesture.GetInstanceID()}");
 
                 // new
                 this.gesture = gesture;

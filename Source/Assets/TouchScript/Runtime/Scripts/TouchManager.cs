@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using TouchScript.Core;
+using TouchScript.Debugging.Loggers;
 using TouchScript.Devices.Display;
 using TouchScript.Layers;
 using TouchScript.Pointers;
@@ -38,14 +39,14 @@ namespace TouchScript
         /// Event implementation in Unity EventSystem for pointer events.
         /// </summary>
         [Serializable]
-        public class PointerEvent : UnityEvent<IList<Pointer>> {}
+        public class PointerEvent : UnityEvent<IList<Pointer>> { }
 
         /// <summary>
         /// Event implementation in Unity EventSystem for frame events.
         /// </summary>
         /// <seealso cref="UnityEngine.Events.UnityEvent" />
         [Serializable]
-        public class FrameEvent : UnityEvent {}
+        public class FrameEvent : UnityEvent { }
 
         /// <summary>
         /// Values of a bit-mask representing which Unity messages an instance of <see cref="TouchManager"/> will dispatch.
@@ -253,6 +254,19 @@ namespace TouchScript
         }
 
         /// <summary>
+        /// Gets or sets current Log level
+        /// </summary>
+        public LogLevel LogLevel
+        {
+            get => logLevel;
+            set
+            {
+                logLevel = value;
+                UnityConsoleLogger.Level = value;
+            }
+        }
+
+        /// <summary>
         /// Indicates if TouchScript should create a CameraLayer for you if no layers present in a scene.
         /// </summary>
         /// <value><c>true</c> if a CameraLayer should be created on startup; otherwise, <c>false</c>.</value>
@@ -362,23 +376,26 @@ namespace TouchScript
         /// <returns><c>true</c> if position is invalid; otherwise, <c>false</c>.</returns>
         public static bool IsInvalidPosition(Vector2 position)
         {
-			return position.x == INVALID_POSITION.x && position.y == INVALID_POSITION.y;
+            return position.x == INVALID_POSITION.x && position.y == INVALID_POSITION.y;
         }
 
         #endregion
 
         #region Private variables
 
-        #pragma warning disable CS0414
+#pragma warning disable CS0414
 
         [SerializeField]
         [HideInInspector]
         private bool basicEditor = true;
 
-        #pragma warning restore CS0414
+#pragma warning restore CS0414
 
-		[SerializeField]
+        [SerializeField]
         private Object displayDevice;
+
+        [SerializeField]
+        private LogLevel logLevel = LogLevel.Log;
 
         [SerializeField]
         [ToggleLeft]
@@ -417,6 +434,7 @@ namespace TouchScript
 #if TOUCHSCRIPT_DEBUG
             if (DebugMode) (Instance as TouchManagerInstance).DebugMode = true;
 #endif
+            LogLevel = logLevel;
 
             Instance.DisplayDevice = displayDevice as IDisplayDevice;
             Instance.ShouldCreateCameraLayer = ShouldCreateCameraLayer;
@@ -440,11 +458,11 @@ namespace TouchScript
             removeUnityEventsSubscriptions();
         }
 
-		[ContextMenu("Basic Editor")]
-		private void switchToBasicEditor()
-		{
+        [ContextMenu("Basic Editor")]
+        private void switchToBasicEditor()
+        {
             basicEditor = true;
-		}
+        }
 
         #endregion
 

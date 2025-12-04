@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using TouchScript.Core;
+using TouchScript.Debugging.Loggers;
 using TouchScript.Hit;
 using TouchScript.Pointers;
 using TouchScript.Utils;
@@ -671,9 +672,9 @@ namespace TouchScript.Gestures
             gestureManagerInstance = GestureManager.Instance as GestureManagerInstance;
 
             if (touchManager == null)
-                Debug.LogError("No TouchManager found! Please add an instance of TouchManager to the scene!");
+                UnityConsoleLogger.LogError("No TouchManager found! Please add an instance of TouchManager to the scene!");
             if (gestureManagerInstance == null)
-                Debug.LogError("No GesturehManager found! Please add an instance of GesturehManager to the scene!");
+                UnityConsoleLogger.LogError("No GesturehManager found! Please add an instance of GesturehManager to the scene!");
 
             if (sendMessageTarget == null) sendMessageTarget = gameObject;
             INTERNAL_Reset();

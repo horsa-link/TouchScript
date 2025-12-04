@@ -2,11 +2,14 @@
 
 using System;
 using System.Collections.Generic;
+using TouchScript.Debugging.Loggers;
 using TouchScript.InputSources.InputHandlers.Interop;
 using TouchScript.Pointers;
 using TouchScript.Utils;
 using UnityEngine;
 using PointerType = TouchScript.InputSources.InputHandlers.Interop.PointerType;
+using PointerEvent = TouchScript.InputSources.InputHandlers.Interop.PointerEvent;
+using PointerData = TouchScript.InputSources.InputHandlers.Interop.PointerData;
 
 namespace TouchScript.InputSources.InputHandlers
 {
@@ -117,7 +120,7 @@ namespace TouchScript.InputSources.InputHandlers
                 out var screenWidth, out var screenHeight);
             
 #if TOUCHSCRIPT_DEBUG
-            Debug.Log($"[TouchScript]: Window({x},{y},{width}x{height}), Screen({screenWidth}x{screenHeight})");
+            UnityConsoleLogger.Log($"Window({x},{y},{width}x{height}), Screen({screenWidth}x{screenHeight})");
 #endif
             
             pointerHandler.SetScreenParams(width, height, 0, 0, 1, 1);
@@ -169,7 +172,7 @@ namespace TouchScript.InputSources.InputHandlers
                                 }
                                 else
                                 {
-                                    Debug.LogError($"[TouchScript]: Duplicate PointerEvent.Down event for id {id}");
+                                    UnityConsoleLogger.LogError($"Duplicate PointerEvent.Down event for id {id}");
                                 }
                                 break;
                             case PointerEvent.Update:
@@ -187,7 +190,7 @@ namespace TouchScript.InputSources.InputHandlers
                                 }
                                 else
                                 {
-                                    Debug.LogError($"[TouchScript]: Duplicate PointerEvent.Up event for id {id}");
+                                    UnityConsoleLogger.LogError($"Duplicate PointerEvent.Up event for id {id}");
                                 }
                         
                                 break;

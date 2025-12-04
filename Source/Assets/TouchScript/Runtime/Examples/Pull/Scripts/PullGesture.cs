@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using TouchScript.Debugging.Loggers;
 using TouchScript.Gestures;
 using TouchScript.Layers;
 using TouchScript.Pointers;
@@ -158,7 +159,7 @@ namespace TouchScript.Tutorial
         protected override void onChanged()
         {
             if (pulledInvoker != null) pulledInvoker(this, EventArgs.Empty);
-//			Debug.LogFormat("Start position: {0}, current position: {1}, force: {2}", StartPosition, Position, Force.magnitude);
+            //UnityConsoleLogger.Log($"Start position: {StartPosition}, current position: {Position}, force: {Force.magnitude}");
         }
 
         // This method is called when gesture is reset when recognized or failed

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using TouchScript.Debugging.Loggers;
 using TouchScript.Utils.Platform;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -81,7 +82,7 @@ namespace TouchScript.Devices.Display
                 // no more displays connected
                 var disconnected = _displays.Select(d => d.Item1).ToArray();
 
-                for (var k = 0; k < disconnected.Length; k++) Debug.Log($"Display ({k}) disconnected: {disconnected[k].systemWidth}x{disconnected[k].systemHeight}");
+                for (var k = 0; k < disconnected.Length; k++) UnityConsoleLogger.Log($"Display ({k}) disconnected: {disconnected[k].systemWidth}x{disconnected[k].systemHeight}");
 
                 OnDisplaysDisconnected?.Invoke(disconnected);
                 _displays = null;
@@ -93,7 +94,7 @@ namespace TouchScript.Devices.Display
                 // through the OnWindowsActivated action despite this being the class initialization
                 _displays = newDisplays.Select(d => (d, false)).ToArray();
 
-                for (var k = 0; k < _displays.Length; k++) Debug.Log($"Display ({k}) connected: {_displays[k].Item1.systemWidth}x{_displays[k].Item1.systemHeight}");
+                for (var k = 0; k < _displays.Length; k++) UnityConsoleLogger.Log($"Display ({k}) connected: {_displays[k].Item1.systemWidth}x{_displays[k].Item1.systemHeight}");
 
                 OnDisplaysConnected?.Invoke(_displays.Select(d => d.Item1).ToArray());
             }
@@ -117,7 +118,7 @@ namespace TouchScript.Devices.Display
                     {
                         toRemove.Add(_displays[i].Item1);
 
-                        Debug.Log($"Display ({i}) disconnected: {_displays[i].Item1.systemWidth}x{_displays[i].Item1.systemHeight}");
+                        UnityConsoleLogger.Log($"Display ({i}) disconnected: {_displays[i].Item1.systemWidth}x{_displays[i].Item1.systemHeight}");
                     }
                 }
 
@@ -138,7 +139,7 @@ namespace TouchScript.Devices.Display
                     {
                         toAdd.Add(newDisplays[i]);
 
-                        Debug.Log($"Display ({i}) connected: {newDisplays[i].systemWidth}x{newDisplays[i].systemHeight}");
+                        UnityConsoleLogger.Log($"Display ({i}) connected: {newDisplays[i].systemWidth}x{newDisplays[i].systemHeight}");
                     }
                 }
 
@@ -183,7 +184,7 @@ namespace TouchScript.Devices.Display
                     {
                         toRemove.Add(_windowHandles[j]);
 
-                        Debug.Log($"Window deactivated: {_windowHandles[j].ToString("X")}");
+                        UnityConsoleLogger.Log($"Window deactivated: {_windowHandles[j].ToString("X")}");
                     }
                 }
                 // we add the new and activated Window handles
@@ -204,7 +205,7 @@ namespace TouchScript.Devices.Display
                     {
                         toAdd.Add(windows[j]);
 
-                        Debug.Log($"Window activated: {windows[j].ToString("X")}");
+                        UnityConsoleLogger.Log($"Window activated: {windows[j].ToString("X")}");
                     }
                 }
 
@@ -260,7 +261,7 @@ namespace TouchScript.Devices.Display
                 {
                     _displays[i].Item2 = true;
 
-                    Debug.Log($"Display ({i}) activated: {_displays[i].Item1.systemWidth}x{_displays[i].Item1.systemHeight}");
+                    UnityConsoleLogger.Log($"Display ({i}) activated: {_displays[i].Item1.systemWidth}x{_displays[i].Item1.systemHeight}");
 
                     OnDisplaysActivated?.Invoke(new[] { _displays[i].Item1 });
 
@@ -270,7 +271,7 @@ namespace TouchScript.Devices.Display
 
             if (_checkForWindows && Time.frameCount % 30 == 0)
             {
-                Debug.Log("Checking window changes");
+                UnityConsoleLogger.Log("Checking window changes");
                 // we finish to check for new Window handles only if there is a Window hierarchy change at SO level (window added/removed)
                 if(onWindowsUpdated())
                 {

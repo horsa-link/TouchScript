@@ -1,3 +1,4 @@
+using TouchScript.Debugging.Loggers;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -120,6 +121,6 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
                 break;
         }
 
-        Debug.Log($"{this}: Calculated scale factor is {dragScaleFactor:F2}");
+        UnityConsoleLogger.Log($"{this}: Calculated scale factor is {dragScaleFactor:F2}");
     }
 }

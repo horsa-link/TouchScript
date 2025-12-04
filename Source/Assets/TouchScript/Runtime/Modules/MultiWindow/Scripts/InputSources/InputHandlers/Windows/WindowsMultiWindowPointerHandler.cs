@@ -3,11 +3,14 @@
 using System;
 using System.Collections.Generic;
 using AOT;
+using TouchScript.Debugging.Loggers;
 using TouchScript.InputSources.InputHandlers.Interop;
 using TouchScript.Pointers;
 using TouchScript.Utils.Platform;
 using UnityEngine;
 using PointerType = TouchScript.InputSources.InputHandlers.Interop.PointerType;
+using PointerEvent = TouchScript.InputSources.InputHandlers.Interop.PointerEvent;
+using PointerData = TouchScript.InputSources.InputHandlers.Interop.PointerData;
 
 namespace TouchScript.InputSources.InputHandlers
 {
@@ -135,13 +138,13 @@ namespace TouchScript.InputSources.InputHandlers
             switch (messageType)
             {
                 case 2:
-                    Debug.LogWarning("[WindowsTouchMultiWindow.dll]: " + message);
+                    UnityConsoleLogger.LogWarning($"[WindowsTouchMultiWindow.dll]: {message}");
                     break;
                 case 3:
-                    Debug.LogError("[WindowsTouchMultiWindow.dll]: " + message);
+                    UnityConsoleLogger.LogError($"[WindowsTouchMultiWindow.dll]: {message}");
                     break;
                 default:
-                    Debug.Log("[WindowsTouchMultiWindow.dll]: " + message);
+                    UnityConsoleLogger.Log($"[WindowsTouchMultiWindow.dll]: {message}");
                     break;
             }
         }

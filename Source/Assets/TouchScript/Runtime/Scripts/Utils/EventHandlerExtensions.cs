@@ -4,6 +4,7 @@
  */
 
 using System;
+using TouchScript.Debugging.Loggers;
 using UnityEngine;
 
 namespace TouchScript.Utils
@@ -30,7 +31,7 @@ namespace TouchScript.Utils
             }
             catch (Exception ex)
             {
-                Debug.LogException(ex);
+                UnityConsoleLogger.LogException(ex);
                 return ex;
             }
             return null;
@@ -51,7 +52,7 @@ namespace TouchScript.Utils
             }
             catch (Exception ex)
             {
-                Debug.LogException(ex);
+                UnityConsoleLogger.LogException(ex);
                 return ex;
             }
             return null;

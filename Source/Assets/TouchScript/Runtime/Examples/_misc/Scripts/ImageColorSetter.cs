@@ -1,3 +1,4 @@
+using TouchScript.Debugging.Loggers;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,7 +11,7 @@ public class ImageColorSetter : MonoBehaviour
     {
         if (index < 0 || index >= colors.Length)
         {
-            Debug.LogWarning($"{this}: SetColor index out of bounds");
+            UnityConsoleLogger.LogWarning($"{this}: SetColor index out of bounds");
             return;
         }
         
