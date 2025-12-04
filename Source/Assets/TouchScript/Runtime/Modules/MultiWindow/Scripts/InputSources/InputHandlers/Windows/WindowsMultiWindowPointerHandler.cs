@@ -138,13 +138,13 @@ namespace TouchScript.InputSources.InputHandlers
             switch (messageType)
             {
                 case 2:
-                    ConsoleLogger.LogWarning($"[WindowsTouchMultiWindow.dll]: {message}");
+                    UnityConsoleLogger.LogWarning($"[WindowsTouchMultiWindow.dll]: {message}");
                     break;
                 case 3:
-                    ConsoleLogger.LogError($"[WindowsTouchMultiWindow.dll]: {message}");
+                    UnityConsoleLogger.LogError($"[WindowsTouchMultiWindow.dll]: {message}");
                     break;
                 default:
-                    ConsoleLogger.Log($"[WindowsTouchMultiWindow.dll]: {message}");
+                    UnityConsoleLogger.Log($"[WindowsTouchMultiWindow.dll]: {message}");
                     break;
             }
         }

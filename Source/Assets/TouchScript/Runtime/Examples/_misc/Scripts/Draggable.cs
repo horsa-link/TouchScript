@@ -121,6 +121,6 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
                 break;
         }
 
-        ConsoleLogger.Log($"{this}: Calculated scale factor is {dragScaleFactor:F2}");
+        UnityConsoleLogger.Log($"{this}: Calculated scale factor is {dragScaleFactor:F2}");
     }
 }

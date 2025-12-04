@@ -37,7 +37,7 @@ namespace TouchScript.Debugging.Loggers
             }
             catch (IOException e)
             {
-                ConsoleLogger.Log($"Error opening file at '{path}'. {e.Message}");
+                UnityConsoleLogger.Log($"Error opening file at '{path}'. {e.Message}");
             }
 
             try

@@ -672,9 +672,9 @@ namespace TouchScript.Gestures
             gestureManagerInstance = GestureManager.Instance as GestureManagerInstance;
 
             if (touchManager == null)
-                ConsoleLogger.LogError("No TouchManager found! Please add an instance of TouchManager to the scene!");
+                UnityConsoleLogger.LogError("No TouchManager found! Please add an instance of TouchManager to the scene!");
             if (gestureManagerInstance == null)
-                ConsoleLogger.LogError("No GesturehManager found! Please add an instance of GesturehManager to the scene!");
+                UnityConsoleLogger.LogError("No GesturehManager found! Please add an instance of GesturehManager to the scene!");
 
             if (sendMessageTarget == null) sendMessageTarget = gameObject;
             INTERNAL_Reset();

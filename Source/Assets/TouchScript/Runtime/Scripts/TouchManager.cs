@@ -262,7 +262,7 @@ namespace TouchScript
             set
             {
                 logLevel = value;
-                ConsoleLogger.Level = value;
+                UnityConsoleLogger.Level = value;
             }
         }
 

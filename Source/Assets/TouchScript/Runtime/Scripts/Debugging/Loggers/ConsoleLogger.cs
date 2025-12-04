@@ -13,9 +13,8 @@ namespace TouchScript.Debugging.Loggers
         Log
     }
     
-    internal class ConsoleLogger
+    internal class UnityConsoleLogger
     {
-
         public static LogLevel Level = LogLevel.Log;
 
         public static void LogException(Exception exception, UnityEngine.Object context = null)

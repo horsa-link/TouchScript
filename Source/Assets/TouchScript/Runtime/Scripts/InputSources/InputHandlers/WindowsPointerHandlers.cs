@@ -334,7 +334,7 @@ namespace TouchScript.InputSources.InputHandlers
 
         public static void ResetTouchSettingToWindow(IntPtr hwnd, ushort pressAndHoldAtomID)
         {
-            ConsoleLogger.Log($"[{nameof(WindowsPointerHandler)}] {nameof(ResetTouchSettingToWindow)}: {hwnd.ToString("X")}");
+            UnityConsoleLogger.Log($"[{nameof(WindowsPointerHandler)}] {nameof(ResetTouchSettingToWindow)}: {hwnd.ToString("X")}");
 
             enableTap(hwnd);
             enableDoubleTap(hwnd);
@@ -480,7 +480,7 @@ namespace TouchScript.InputSources.InputHandlers
 
         private static void applyTouchSettingToWindow(IntPtr hwnd, out ushort pressAndHoldAtomID)
         {
-            ConsoleLogger.Log($"[{nameof(WindowsPointerHandler)}] {nameof(applyTouchSettingToWindow)}: {hwnd.ToString("X")}");
+            UnityConsoleLogger.Log($"[{nameof(WindowsPointerHandler)}] {nameof(applyTouchSettingToWindow)}: {hwnd.ToString("X")}");
 
             disableTap(hwnd);
             disableDoubleTap(hwnd);
@@ -521,7 +521,7 @@ namespace TouchScript.InputSources.InputHandlers
             var hr = WindowsUtils.SHGetPropertyStoreForWindow(hwnd, ref IID_IPropertyStore, out var propStore);
             if (hr != 0 || propStore == null)
             {
-                ConsoleLogger.LogWarning($"Cannot retrieve the property store for window named \"{nameof(DISABLE_TOUCH_WHEN_FULLSCREEN)}\"");
+                UnityConsoleLogger.LogWarning($"Cannot retrieve the property store for window named \"{nameof(DISABLE_TOUCH_WHEN_FULLSCREEN)}\"");
                 return;
             }
 
@@ -562,7 +562,7 @@ namespace TouchScript.InputSources.InputHandlers
             var hr = WindowsUtils.SHGetPropertyStoreForWindow(hwnd, ref IID_IPropertyStore, out var propStore);
             if (hr != 0 || propStore == null)
             {
-                ConsoleLogger.LogWarning($"Cannot retrieve the property store for window named \"{nameof(DISABLE_TOUCH_WHEN_FULLSCREEN)}\"");
+                UnityConsoleLogger.LogWarning($"Cannot retrieve the property store for window named \"{nameof(DISABLE_TOUCH_WHEN_FULLSCREEN)}\"");
                 return;
             }
 
@@ -586,7 +586,7 @@ namespace TouchScript.InputSources.InputHandlers
             var result = WindowsUtils.SetWindowFeedbackSetting(hwnd, (uint)feedback, 0, (uint)size, ptr);
             if (!result)
             {
-                ConsoleLogger.LogWarning(
+                UnityConsoleLogger.LogWarning(
                     $"Cannot change the window feedback setting named {Enum.GetName(typeof(FeedbackType), feedback)}, " +
                     $"Win32Error: {Marshal.GetLastWin32Error().ToString("X")}");
             }
@@ -650,7 +650,7 @@ namespace TouchScript.InputSources.InputHandlers
 
         private void nativeLog(string log)
         {
-            ConsoleLogger.Log($"[WindowsTouch.dll]: {log}");
+            UnityConsoleLogger.Log($"[WindowsTouch.dll]: {log}");
         }
 
         private void nativePointer(int id, PointerEvent evt, PointerType type, Vector2 position, PointerData data)

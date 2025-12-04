@@ -165,7 +165,7 @@ namespace TouchScript.Layers
                     break;
                 case LayerType.MainCamera:
                     _camera = Camera.main;
-                    if (_camera == null) ConsoleLogger.LogError("No Main camera found!");
+                    if (_camera == null) UnityConsoleLogger.LogError("No Main camera found!");
                     break;
             }
             setName();

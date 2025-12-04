@@ -547,7 +547,7 @@ namespace TouchScript.Behaviors
                     this.gesture.StateChanged -= stateChangedHandler;
                 }
 
-                ConsoleLogger.Log($"[{GetInstanceID()}] SetTransformGesture, from {this.gesture?.GetInstanceID()} to {gesture.GetInstanceID()}");
+                UnityConsoleLogger.Log($"[{GetInstanceID()}] SetTransformGesture, from {this.gesture?.GetInstanceID()} to {gesture.GetInstanceID()}");
 
                 // new
                 this.gesture = gesture;

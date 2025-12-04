@@ -278,7 +278,7 @@ namespace TouchScript.Behaviors.Cursors
             rect = transform as RectTransform;
             if (rect == null)
             {
-                ConsoleLogger.LogError("PointerCursor must be on an UI element!");
+                UnityConsoleLogger.LogError("PointerCursor must be on an UI element!");
                 enabled = false;
                 return;
             }

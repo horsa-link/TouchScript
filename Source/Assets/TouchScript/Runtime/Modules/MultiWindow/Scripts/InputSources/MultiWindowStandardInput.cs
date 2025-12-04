@@ -220,7 +220,7 @@ namespace TouchScript.InputSources.InputHandlers
             mouseHandler.EmulateSecondMousePointer = emulateSecondMousePointer;
             mouseHandler.TargetDisplay = TargetDisplay;
             
-            ConsoleLogger.Log($"Initialized Unity mouse input for {TargetDisplay + 1}.");
+            UnityConsoleLogger.Log($"Initialized Unity mouse input for {TargetDisplay + 1}.");
         }
 
 #if !UNITY_EDITOR
@@ -286,7 +286,7 @@ namespace TouchScript.InputSources.InputHandlers
                 mouseHandler.Dispose();
                 mouseHandler = null;
                 
-                ConsoleLogger.Log($"Disposed Unity mouse input for display {TargetDisplay + 1}.");
+                UnityConsoleLogger.Log($"Disposed Unity mouse input for display {TargetDisplay + 1}.");
             }
         }
 

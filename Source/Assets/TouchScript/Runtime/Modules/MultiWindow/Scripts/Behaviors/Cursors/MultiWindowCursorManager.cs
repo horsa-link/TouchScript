@@ -165,7 +165,7 @@ namespace TouchScript.Behaviors.Cursors
             rect = transform as RectTransform;
             if (rect == null)
             {
-                ConsoleLogger.LogError("CursorManager must be on an UI element!");
+                UnityConsoleLogger.LogError("CursorManager must be on an UI element!");
                 enabled = false;
             }
             
