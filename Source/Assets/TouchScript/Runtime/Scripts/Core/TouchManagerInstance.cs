@@ -343,7 +343,7 @@ namespace TouchScript.Core
                     {
 						// No pointer with such id
 #if TOUCHSCRIPT_DEBUG
-                        if (DebugMode) Debug.LogWarning("TouchScript > Pointer with id [" + id + "] is requested to MOVE to but no pointer with such id found.");
+                        if (DebugMode) UnityConsoleLogger.LogWarning($"Pointer with id [{id}] is requested to MOVE to but no pointer with such id found.");
 #endif
                         return;
                     }
@@ -366,8 +366,7 @@ namespace TouchScript.Core
 						// No pointer with such id
 #if TOUCHSCRIPT_DEBUG
                         if (DebugMode)
-                            Debug.LogWarning("TouchScript > Pointer with id [" + id +
-                                             "] is requested to PRESS but no pointer with such id found.");
+                            UnityConsoleLogger.LogWarning($"Pointer with id [{id}] is requested to PRESS but no pointer with such id found.");
 #endif
                         return;
                     }
@@ -375,8 +374,7 @@ namespace TouchScript.Core
 #if TOUCHSCRIPT_DEBUG
                 if (!pointersPressed.Add(id))
                     if (DebugMode)
-                        Debug.LogWarning("TouchScript > Pointer with id [" + id +
-                                         "] is requested to PRESS more than once this frame.");
+                        UnityConsoleLogger.LogWarning($"Pointer with id [{id}] is requested to PRESS more than once this frame.");
 #else
                 pointersPressed.Add(id);
 #endif
@@ -398,8 +396,7 @@ namespace TouchScript.Core
 						// No pointer with such id
 #if TOUCHSCRIPT_DEBUG
                         if (DebugMode)
-                            Debug.LogWarning("TouchScript > Pointer with id [" + id +
-                                             "] is requested to END but no pointer with such id found.");
+                            UnityConsoleLogger.LogWarning($"Pointer with id [{id}] is requested to END but no pointer with such id found.");
 #endif
                         return;
                     }
@@ -407,8 +404,7 @@ namespace TouchScript.Core
 #if TOUCHSCRIPT_DEBUG
                 if (!pointersReleased.Add(id))
                     if (DebugMode)
-                        Debug.LogWarning("TouchScript > Pointer with id [" + id +
-                                         "] is requested to END more than once this frame.");
+                        UnityConsoleLogger.LogWarning($"Pointer with id [{id}] is requested to END more than once this frame.");
 #else
                 pointersReleased.Add(id);
 #endif
@@ -429,8 +425,7 @@ namespace TouchScript.Core
 						// No pointer with such id
 #if TOUCHSCRIPT_DEBUG
                         if (DebugMode)
-                            Debug.LogWarning("TouchScript > Pointer with id [" + id +
-                                             "] is requested to REMOVE but no pointer with such id found.");
+                            UnityConsoleLogger.LogWarning($"Pointer with id [{id}] is requested to REMOVE but no pointer with such id found.");
 #endif
                         return;
                     }
@@ -438,8 +433,7 @@ namespace TouchScript.Core
 #if TOUCHSCRIPT_DEBUG
                 if (!pointersRemoved.Add(pointer.Id))
                     if (DebugMode)
-                        Debug.LogWarning("TouchScript > Pointer with id [" + id +
-                                         "] is requested to REMOVE more than once this frame.");
+                        UnityConsoleLogger.LogWarning($"Pointer with id [{id}] is requested to REMOVE more than once this frame.");
 #else
                 pointersRemoved.Add(pointer.Id);
 #endif
@@ -460,8 +454,7 @@ namespace TouchScript.Core
 						// No pointer with such id
 #if TOUCHSCRIPT_DEBUG
                         if (DebugMode)
-                            Debug.LogWarning("TouchScript > Pointer with id [" + id +
-                                             "] is requested to CANCEL but no pointer with such id found.");
+                            UnityConsoleLogger.LogWarning($"Pointer with id [{id}] is requested to CANCEL but no pointer with such id found.");
 #endif
                         return;
                     }
@@ -469,8 +462,7 @@ namespace TouchScript.Core
 #if TOUCHSCRIPT_DEBUG
                 if (!pointersCancelled.Add(pointer.Id))
                     if (DebugMode)
-                        Debug.LogWarning("TouchScript > Pointer with id [" + id +
-                                         "] is requested to CANCEL more than once this frame.");
+                        UnityConsoleLogger.LogWarning($"Pointer with id [{id}]] is requested to CANCEL more than once this frame.");
 #else
                 pointersCancelled.Add(pointer.Id);
 #endif
@@ -573,7 +565,7 @@ namespace TouchScript.Core
             {
                 if (Camera.main)
                 {
-                    if (Application.isEditor) Debug.Log("[TouchScript] No touch layers found, adding StandardLayer for the main camera. (this message is harmless)");
+                    if (Application.isEditor) UnityConsoleLogger.Log("No touch layers found, adding StandardLayer for the main camera. (this message is harmless)");
                     var layer = Camera.main.gameObject.AddComponent<StandardLayer>();
                     layerManager.AddLayer(layer);
                 }
@@ -584,7 +576,7 @@ namespace TouchScript.Core
         {
             if (inputCount == 0 && ShouldCreateStandardInput)
             {
-                if (Application.isEditor) Debug.Log("[TouchScript] No input source found, adding StandardInput. (this message is harmless)");
+                if (Application.isEditor) UnityConsoleLogger.Log("No input source found, adding StandardInput. (this message is harmless)");
                 GameObject obj = null;
                 var objects = FindObjectsByType<TouchManager>(FindObjectsSortMode.None);
 
@@ -668,8 +660,7 @@ namespace TouchScript.Core
                 {
 #if TOUCHSCRIPT_DEBUG
                     if (DebugMode)
-                        Debug.LogWarning("TouchScript > Id [" + id +
-                                         "] was in UPDATED list but no pointer with such id found.");
+                        UnityConsoleLogger.LogWarning($"Id [{id}] was in UPDATED list but no pointer with such id found.");
 #endif
                     continue;
                 }
@@ -722,8 +713,7 @@ namespace TouchScript.Core
                 {
 #if TOUCHSCRIPT_DEBUG
                     if (DebugMode)
-                        Debug.LogWarning("TouchScript > Id [" + id +
-                                         "] was in PRESSED list but no pointer with such id found.");
+                        UnityConsoleLogger.LogWarning($"Id [{id}] was in PRESSED list but no pointer with such id found.");
 #endif
                     continue;
                 }
@@ -762,7 +752,7 @@ namespace TouchScript.Core
                 if (!idToPointer.TryGetValue(id, out var pointer))
                 {
 #if TOUCHSCRIPT_DEBUG
-                    if (DebugMode) Debug.LogWarning("TouchScript > Id [" + id + "] was in RELEASED list but no pointer with such id found.");
+                    if (DebugMode) UnityConsoleLogger.LogWarning($"Id [{id}] was in RELEASED list but no pointer with such id found.");
 #endif
                     continue;
                 }
@@ -809,7 +799,7 @@ namespace TouchScript.Core
                 if (!idToPointer.TryGetValue(id, out var pointer))
                 {
 #if TOUCHSCRIPT_DEBUG
-                    if (DebugMode) Debug.LogWarning("TouchScript > Id [" + id + "] was in REMOVED list but no pointer with such id found.");
+                    if (DebugMode) UnityConsoleLogger.LogWarning($"Id [{id}] was in REMOVED list but no pointer with such id found.");
 #endif
                     continue;
                 }
@@ -867,8 +857,7 @@ namespace TouchScript.Core
                 {
 #if TOUCHSCRIPT_DEBUG
                     if (DebugMode)
-                        Debug.LogWarning("TouchScript > Id [" + id +
-                                         "] was in CANCELLED list but no pointer with such id found.");
+                        UnityConsoleLogger.LogWarning($"Id [{id}] was in CANCELLED list but no pointer with such id found.");
 #endif
                     continue;
                 }

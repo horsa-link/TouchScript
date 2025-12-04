@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine.Events;
+using TouchScript.Debugging.Loggers;
+
 #if OBJECTPOOL_DEBUG
 using UnityEngine;
 #endif
@@ -108,19 +110,19 @@ namespace TouchScript.Utils
         private void log(string message)
         {
             if (string.IsNullOrEmpty(Name)) return;
-            UnityEngine.Debug.LogFormat("[{0}] ObjectPool ({1}): {2}", DateTime.Now.ToString("hh:mm:ss.fff"), Name, message);
+            UnityConsoleLogger.Log($"[{DateTime.Now.ToString("hh:mm:ss.fff")}] ObjectPool ({Name}): {message}");
         }
 
         private void logWarning(string message)
         {
             if (string.IsNullOrEmpty(Name)) return;
-            UnityEngine.Debug.LogWarningFormat("[{0}] ObjectPool ({1}): {2}", DateTime.Now.ToString("hh:mm:ss.fff"), Name, message);
+            UnityConsoleLogger.LogWarning($"[{DateTime.Now.ToString("hh:mm:ss.fff")}] ObjectPool ({Name}): {message}");
         }
 
         private void logError(string message)
         {
             if (string.IsNullOrEmpty(Name)) return;
-            UnityEngine.Debug.LogErrorFormat("[{0}] ObjectPool ({1}): {2}", DateTime.Now.ToString("hh:mm:ss.fff"), Name, message);
+            UnityConsoleLogger.LogError($"[{DateTime.Now.ToString("hh:mm:ss.fff")}] ObjectPool ({Name}): {message}");
         }
 #endif
     }

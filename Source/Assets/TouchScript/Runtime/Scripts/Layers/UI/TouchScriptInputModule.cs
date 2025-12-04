@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using TouchScript.Debugging.Loggers;
 using TouchScript.Hit;
 using TouchScript.Pointers;
 using UnityEngine;
@@ -416,7 +417,7 @@ namespace TouchScript.Layers.UI
 
                 if (!allow) return false;
 
-                // Debug.Log(m_ProcessingEvent.rawType + " axis:" + m_AllowAxisEvents + " value:" + "(" + x + "," + y + ")");
+                //UnityConsoleLogger.Log($"{m_ProcessingEvent.rawType} axis: {m_AllowAxisEvents} value: ({x},{y})");
                 var axisEventData = input.GetAxisEventData(movement.x, movement.y, 0.6f);
 
                 if (axisEventData.moveDir != MoveDirection.None)
@@ -654,7 +655,7 @@ namespace TouchScript.Layers.UI
                     // didnt find a press handler... search for a click handler
                     if (newPressed == null) newPressed = ExecuteEvents.GetEventHandler<IPointerClickHandler>(currentOverGo);
 
-                    // Debug.Log("Pressed: " + newPressed);
+                    //UnityConsoleLogger.Log($"Pressed: {newPressed}");
 
                     var time = Time.unscaledTime;
 

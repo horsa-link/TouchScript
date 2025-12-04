@@ -3,6 +3,7 @@
  */
 
 using System.Collections.Generic;
+using TouchScript.Debugging.Loggers;
 using TouchScript.Pointers;
 using TouchScript.Utils;
 using TouchScript.Utils.Attributes;
@@ -154,7 +155,7 @@ namespace TouchScript.Behaviors.Cursors
             rect = transform as RectTransform;
             if (rect == null)
             {
-                Debug.LogError("CursorManager must be on an UI element!");
+                UnityConsoleLogger.LogError("CursorManager must be on an UI element!");
                 enabled = false;
             }
 

@@ -34,7 +34,7 @@ namespace TouchScript.Debugging.Loggers
             }
             catch (IOException e)
             {
-                Debug.LogFormat("Error creating file at '{0}'. {1}", path, e.Message);
+                UnityConsoleLogger.Log($"Error creating file at '{path}'. {e.Message}");
             }
         }
 
