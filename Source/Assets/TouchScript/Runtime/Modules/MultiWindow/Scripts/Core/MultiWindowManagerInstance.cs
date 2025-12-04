@@ -160,7 +160,7 @@ namespace TouchScript.Core
                 {
                     targetDisplayWindowHandles.Add(targetDisplay, windowHandle);
 
-                    ConsoleLogger.Log($"Registered window handle for display {targetDisplay + 1}.");
+                    UnityConsoleLogger.Log($"Registered window handle for display {targetDisplay + 1}.");
                     
                     return windowHandle;
                 }
@@ -198,7 +198,7 @@ namespace TouchScript.Core
             }
 
 #  if TOUCHSCRIPT_DEBUG            
-            ConsoleLogger.Log($"Found {unityWindowHandles.Count} windows.");
+            UnityConsoleLogger.Log($"Found {unityWindowHandles.Count} windows.");
 #  endif
         }
 
@@ -206,14 +206,14 @@ namespace TouchScript.Core
         private void RefreshWindowHandles()
         {
 #  if TOUCHSCRIPT_DEBUG
-            ConsoleLogger.Log($"RefreshWindowHandles.");
+            UnityConsoleLogger.Log($"RefreshWindowHandles.");
 #  endif
 
             unityWindowHandles.Clear();
             pointerHandlerSystem.GetWindowsOfProcess(Process.GetCurrentProcess().Id, unityWindowHandles);
 
 #  if TOUCHSCRIPT_DEBUG
-            ConsoleLogger.Log($"Found {unityWindowHandles.Count} windows.");
+            UnityConsoleLogger.Log($"Found {unityWindowHandles.Count} windows.");
 #  endif
         }
 # endif

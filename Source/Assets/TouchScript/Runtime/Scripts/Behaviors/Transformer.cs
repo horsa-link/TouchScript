@@ -371,10 +371,10 @@ namespace TouchScript.Behaviors
                         targetPosition.y = pos.y;
                     if (!Mathf.Approximately(pos.z, lastPosition.z))
                         targetPosition.z = pos.z;
-                    ConsoleLogger.Log($"Last position {lastPosition} pos x  {pos.x} state {state} target {targetPosition} fraction {fraction} approx {!Mathf.Approximately(pos.x, lastPosition.x)}");
+                    UnityConsoleLogger.Log($"Last position {lastPosition} pos x  {pos.x} state {state} target {targetPosition} fraction {fraction} approx {!Mathf.Approximately(pos.x, lastPosition.x)}");
                     if (Mathf.Approximately(targetPosition.x, pos.x))
                     {
-                        ConsoleLogger.Log($"Position stays the same {pos.x} temp {targetPosition.x}");
+                        UnityConsoleLogger.Log($"Position stays the same {pos.x} temp {targetPosition.x}");
                         targetPosition = temp;
                     }
                 }

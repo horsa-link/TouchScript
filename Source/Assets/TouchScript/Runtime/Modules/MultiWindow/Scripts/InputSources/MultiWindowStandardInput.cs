@@ -231,7 +231,7 @@ namespace TouchScript.InputSources.InputHandlers
             var window = multiWindowManager.GetWindowHandle(targetDisplay);
             if (window == IntPtr.Zero)
             {
-                ConsoleLogger.LogError($"Failed to initialize Windows pointer input for display {TargetDisplay + 1}.");
+                UnityConsoleLogger.LogError($"Failed to initialize Windows pointer input for display {TargetDisplay + 1}.");
                 return;
             }
 
@@ -240,7 +240,7 @@ namespace TouchScript.InputSources.InputHandlers
             windows8PointerHandler.MouseInPointer = true;
             pointerHandler = windows8PointerHandler;
 
-            ConsoleLogger.Log($"Initialized Windows pointer input for display {TargetDisplay + 1}.");
+            UnityConsoleLogger.Log($"Initialized Windows pointer input for display {TargetDisplay + 1}.");
         }
 
 # elif UNITY_STANDALONE_LINUX
@@ -249,7 +249,7 @@ namespace TouchScript.InputSources.InputHandlers
             var window = multiWindowManager.GetWindowHandle(targetDisplay);
             if (window == IntPtr.Zero)
             {
-                ConsoleLogger.LogError($"Failed to initialize X11 pointer input for display {TargetDisplay + 1}.");
+                UnityConsoleLogger.LogError($"Failed to initialize X11 pointer input for display {TargetDisplay + 1}.");
                 return;
             }
 
@@ -257,7 +257,7 @@ namespace TouchScript.InputSources.InputHandlers
                 pressPointer, releasePointer, removePointer, cancelPointer);
             pointerHandler = x11PointerHandler;
 
-            ConsoleLogger.Log($"Initialized X11 pointer input for display {TargetDisplay + 1}.");
+            UnityConsoleLogger.Log($"Initialized X11 pointer input for display {TargetDisplay + 1}.");
         }
 # endif
 #endif
@@ -298,7 +298,7 @@ namespace TouchScript.InputSources.InputHandlers
                 pointerHandler.Dispose();
                 pointerHandler = null;
 
-                ConsoleLogger.Log($"Disposed pointer input for display {TargetDisplay + 1}.");
+                UnityConsoleLogger.Log($"Disposed pointer input for display {TargetDisplay + 1}.");
             }
         }
 #endif

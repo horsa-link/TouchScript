@@ -159,7 +159,7 @@ namespace TouchScript.Tutorial
         protected override void onChanged()
         {
             if (pulledInvoker != null) pulledInvoker(this, EventArgs.Empty);
-            //ConsoleLogger.Log($"Start position: {StartPosition}, current position: {Position}, force: {Force.magnitude}");
+            //UnityConsoleLogger.Log($"Start position: {StartPosition}, current position: {Position}, force: {Force.magnitude}");
         }
 
         // This method is called when gesture is reset when recognized or failed

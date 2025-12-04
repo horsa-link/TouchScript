@@ -120,7 +120,7 @@ namespace TouchScript.InputSources.InputHandlers
                 out var screenWidth, out var screenHeight);
             
 #if TOUCHSCRIPT_DEBUG
-            ConsoleLogger.Log($"Window({x},{y},{width}x{height}), Screen({screenWidth}x{screenHeight})");
+            UnityConsoleLogger.Log($"Window({x},{y},{width}x{height}), Screen({screenWidth}x{screenHeight})");
 #endif
             
             pointerHandler.SetScreenParams(width, height, 0, 0, 1, 1);
@@ -172,7 +172,7 @@ namespace TouchScript.InputSources.InputHandlers
                                 }
                                 else
                                 {
-                                    ConsoleLogger.LogError($"Duplicate PointerEvent.Down event for id {id}");
+                                    UnityConsoleLogger.LogError($"Duplicate PointerEvent.Down event for id {id}");
                                 }
                                 break;
                             case PointerEvent.Update:
@@ -190,7 +190,7 @@ namespace TouchScript.InputSources.InputHandlers
                                 }
                                 else
                                 {
-                                    ConsoleLogger.LogError($"Duplicate PointerEvent.Up event for id {id}");
+                                    UnityConsoleLogger.LogError($"Duplicate PointerEvent.Up event for id {id}");
                                 }
                         
                                 break;

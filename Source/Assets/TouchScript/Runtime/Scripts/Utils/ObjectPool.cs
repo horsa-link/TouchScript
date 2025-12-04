@@ -110,19 +110,19 @@ namespace TouchScript.Utils
         private void log(string message)
         {
             if (string.IsNullOrEmpty(Name)) return;
-            ConsoleLogger.Log($"[{DateTime.Now.ToString("hh:mm:ss.fff")}] ObjectPool ({Name}): {message}");
+            UnityConsoleLogger.Log($"[{DateTime.Now.ToString("hh:mm:ss.fff")}] ObjectPool ({Name}): {message}");
         }
 
         private void logWarning(string message)
         {
             if (string.IsNullOrEmpty(Name)) return;
-            ConsoleLogger.LogWarning($"[{DateTime.Now.ToString("hh:mm:ss.fff")}] ObjectPool ({Name}): {message}");
+            UnityConsoleLogger.LogWarning($"[{DateTime.Now.ToString("hh:mm:ss.fff")}] ObjectPool ({Name}): {message}");
         }
 
         private void logError(string message)
         {
             if (string.IsNullOrEmpty(Name)) return;
-            ConsoleLogger.LogError($"[{DateTime.Now.ToString("hh:mm:ss.fff")}] ObjectPool ({Name}): {message}");
+            UnityConsoleLogger.LogError($"[{DateTime.Now.ToString("hh:mm:ss.fff")}] ObjectPool ({Name}): {message}");
         }
 #endif
     }
