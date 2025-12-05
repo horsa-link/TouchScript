@@ -81,7 +81,7 @@ namespace TouchScript.InputSources.InputHandlers
         public override bool UpdateInput()
         {
             base.UpdateInput();
-            return true;
+            return winTouchToInternalId.Count > 0;
         }
 
         /// <inheritdoc />
