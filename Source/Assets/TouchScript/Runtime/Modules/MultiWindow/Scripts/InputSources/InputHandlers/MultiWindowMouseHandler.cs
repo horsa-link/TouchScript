@@ -194,7 +194,8 @@ namespace TouchScript.InputSources.InputHandlers
                 switch (state)
                 {
                     case State.Mouse:
-                        if (Input.GetKeyDown(KeyCode.LeftAlt) && !Input.GetKeyUp(KeyCode.LeftAlt) && ((newButtons & Pointer.PointerButtonState.AnyButtonPressed) == 0))
+                        if (Input.GetKeyDown(KeyCode.LeftAlt) && !Input.GetKeyUp(KeyCode.LeftAlt) 
+                            && ((newButtons & Pointer.PointerButtonState.AnyButtonPressed) == 0))
                         {
                             stateWaitingForFake();
                         }
