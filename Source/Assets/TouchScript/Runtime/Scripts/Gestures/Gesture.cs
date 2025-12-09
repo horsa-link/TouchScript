@@ -423,7 +423,22 @@ namespace TouchScript.Gestures
         /// <summary>
         /// Reference to global TouchManager.
         /// </summary>
-        protected TouchManagerInstance touchManager { get; private set; }
+        protected TouchManagerInstance touchManager
+        {
+            get
+            { 
+                if(touchManagerInstance == null)
+                {
+                    touchManagerInstance = TouchManager.Instance as TouchManagerInstance;
+                }
+
+                return touchManagerInstance;
+            }
+            private set
+            {
+                touchManagerInstance = value;
+            }
+        }
 
         /// <summary>
         /// The state of min/max number of pointers.
@@ -491,6 +506,7 @@ namespace TouchScript.Gestures
 
         private int numPointers;
         private ReadOnlyCollection<Pointer> readonlyActivePointers;
+        private TouchManagerInstance touchManagerInstance;
         private GestureManagerInstance gestureManagerInstance;
         private GestureState delayedStateChange = GestureState.Idle;
         private bool requiredGestureFailed;

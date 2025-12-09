@@ -47,12 +47,13 @@ namespace TouchScript.InputSources.InputHandlers
         }
 
         private readonly IntPtr hWindow;
-        private readonly Dictionary<int, TouchPointer> winTouchToInternalId = new(10);
 
         private WindowsMultiWindowNativePointerHandler pointerHandler;
         private NativeWindowHandler nativeWindowHandler;
         private readonly WindowsMultiWindowNativeLog messageCallback;
         private readonly WindowsMultiWindowNativePointerDelegate pointerCallback;
+        
+        protected readonly Dictionary<int, TouchPointer> winTouchToInternalId = new(10);
         
         protected WindowsMultiWindowPointerHandler(int targetDisplay, IntPtr hWindow, PointerDelegate addPointer,
             PointerDelegate updatePointer, PointerDelegate pressPointer, PointerDelegate releasePointer,
