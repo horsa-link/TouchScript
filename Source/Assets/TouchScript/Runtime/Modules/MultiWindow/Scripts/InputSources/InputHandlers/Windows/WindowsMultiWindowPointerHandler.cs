@@ -36,7 +36,7 @@ namespace TouchScript.InputSources.InputHandlers
 
         private readonly IntPtr hWindow;
         private ushort pressAndHoldAtomID;
-        private readonly Dictionary<int, TouchPointer> winTouchToInternalId = new(10);
+        protected readonly Dictionary<int, TouchPointer> winTouchToInternalId = new(10);
 
         private NativePointerHandler pointerHandler;
         private readonly MessageCallback messageCallback;

@@ -392,7 +392,7 @@ namespace TouchScript.InputSources
         {
             mouseHandler = new MouseHandler(addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer);
             mouseHandler.EmulateSecondMousePointer = emulateSecondMousePointer;
-            UnityConsoleLogger.Log("[TouchScript] Initialized Unity mouse input.");
+            UnityConsoleLogger.Log("Initialized Unity mouse input.");
         }
 
         private void disableMouse()
@@ -407,7 +407,7 @@ namespace TouchScript.InputSources
         private void enableTouch()
         {
             touchHandler = new TouchHandler(addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer);
-            UnityConsoleLogger.Log("[TouchScript] Initialized Unity touch input.");
+            UnityConsoleLogger.Log("Initialized Unity touch input.");
         }
 
         private void disableTouch()
@@ -423,7 +423,7 @@ namespace TouchScript.InputSources
         private void enableWindows7Touch()
         {
             windows7PointerHandler = new Windows7PointerHandler(addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer);
-            UnityConsoleLogger.Log("[TouchScript] Initialized Windows 7 pointer input.");
+            UnityConsoleLogger.Log("Initialized Windows 7 pointer input.");
         }
 
         private void disableWindows7Touch()
@@ -439,7 +439,7 @@ namespace TouchScript.InputSources
         {
             windows8PointerHandler = new Windows8PointerHandler(addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer);
             windows8PointerHandler.MouseInPointer = windows8Mouse;
-            UnityConsoleLogger.Log("[TouchScript] Initialized Windows 8 pointer input.");
+            UnityConsoleLogger.Log("Initialized Windows 8 pointer input.");
         }
 
         private void disableWindows8Touch()

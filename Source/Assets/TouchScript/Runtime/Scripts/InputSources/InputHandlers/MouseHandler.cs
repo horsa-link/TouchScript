@@ -131,7 +131,7 @@ namespace TouchScript.InputSources.InputHandlers
             
             /*//TODO: this line was added in our previous version, why?
             var mouseStatus = getMouseButtons();
-            if (mouseStatus == Pointer.PointerButtonState.Nothing &&  !(Input.GetKey(KeyCode.LeftAlt)))
+            if (mouseStatus == Pointer.PointerButtonState.Nothing && !(Input.GetKey(KeyCode.LeftAlt)))
             {
                 if (mousePointer != null)
                 {
@@ -142,9 +142,8 @@ namespace TouchScript.InputSources.InputHandlers
                     releasePointer(fakeMousePointer);
                     cancelPointer(fakeMousePointer);
                     fakeMousePointer = null;
-                }                       
+                }
                 stateMouse();
-
                 return false;
             }*/
 
