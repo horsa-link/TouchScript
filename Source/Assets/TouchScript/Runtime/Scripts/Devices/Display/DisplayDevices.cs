@@ -5,7 +5,6 @@ using System.Linq;
 using TouchScript.Debugging.Loggers;
 using TouchScript.Utils.Platform;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 namespace TouchScript.Devices.Display
 {
@@ -74,12 +73,11 @@ namespace TouchScript.Devices.Display
 
             if (newDisplays == null && _displays == null)
             {
-                // no displays connected
-                // impossible
+                // no displays connected (impossible)
             }
             else if (newDisplays == null && _displays != null)
             {
-                // no more displays connected
+                // no more displays connected (unlikely)
                 var disconnected = _displays.Select(d => d.Item1).ToArray();
 
                 for (var k = 0; k < disconnected.Length; k++) UnityConsoleLogger.Log($"Display ({k}) disconnected: {disconnected[k].systemWidth}x{disconnected[k].systemHeight}");

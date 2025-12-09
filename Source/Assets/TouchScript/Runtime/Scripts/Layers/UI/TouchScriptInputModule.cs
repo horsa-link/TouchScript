@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using TouchScript.Debugging.Loggers;
 using TouchScript.Hit;
 using TouchScript.Pointers;
 using UnityEngine;
@@ -216,6 +215,8 @@ namespace TouchScript.Layers.UI
                 uiSampler = CustomSampler.Create("[TouchScript] Update UI");
             }
 
+            #region Ignore gos
+
             /// <summary>
             /// List of GameObject that, if target in a PointerEventData, should consume the event but not forward it to Unity's EventSystem interfaces
             /// </summary>
@@ -335,6 +336,8 @@ namespace TouchScript.Layers.UI
 
                 return result;
             }
+
+            #endregion
 
             private int m_ConsecutiveMoveCount;
             private Vector2 m_LastMoveVector;

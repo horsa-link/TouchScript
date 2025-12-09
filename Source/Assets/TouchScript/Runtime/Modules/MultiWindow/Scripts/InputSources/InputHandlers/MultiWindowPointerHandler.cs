@@ -29,18 +29,6 @@ namespace TouchScript.InputSources.InputHandlers
         protected ObjectPool<PenPointer> penPool;
         protected MousePointer mousePointer;
         protected PenPointer penPointer;
-        protected List<(IntPtr, ushort)> windowHandles = new();
-        private bool windowsGesturesManagement = true;
-        public bool WindowsGesturesManagement
-        {
-            get { return windowsGesturesManagement; }
-            set
-            {
-                windowHandles.Clear();
-                windowsGesturesManagement = value;
-            }
-        }
-
 
         protected int targetDisplay;
 
@@ -76,9 +64,10 @@ namespace TouchScript.InputSources.InputHandlers
         }
 
         /// <inheritdoc />
-        public abstract bool CancelPointer(Pointer pointer, bool shouldReturn);
+        public virtual void UpdateWindowsInput() {}
 
-        public void UpdateWindowsInput(IntPtr[] hwnds) => WindowsPointerHandler.UpdateWindowsInput(hwnds, windowHandles);
+        /// <inheritdoc />
+        public abstract bool CancelPointer(Pointer pointer, bool shouldReturn);
 
         /// <inheritdoc />
         public virtual void INTERNAL_DiscardPointer(Pointer pointer)

@@ -2,9 +2,9 @@
  * @author Valentin Simonov / http://va.lent.in/
  */
 
-using System;
 using TouchScript.Debugging.Loggers;
 using TouchScript.InputSources.InputHandlers;
+using TouchScript.InputSources.InputHandlers.Interop;
 using TouchScript.Pointers;
 using TouchScript.Utils.Attributes;
 using UnityEngine;
@@ -134,16 +134,15 @@ namespace TouchScript.InputSources
             }
         }
 
-        public bool WindowsGesturesManagement
+        public WindowProperties WindowProperties
         {
-            get { return windowsGesturesManagement; }
+            get { return windowProperties; }
             set
             {
-                windowsGesturesManagement = value;
-                if (touchHandler != null) touchHandler.WindowsGesturesManagement = value;
+                windowProperties = value;
 #if UNITY_STANDALONE_WIN && !UNITY_EDITOR
-                if (windows8PointerHandler != null) windows8PointerHandler.WindowsGesturesManagement = value;
-                if (windows7PointerHandler != null) windows7PointerHandler.WindowsGesturesManagement = value;
+                if (windows8PointerHandler != null) windows8PointerHandler.WindowProperties = value;
+                if (windows7PointerHandler != null) windows7PointerHandler.WindowProperties = value;
 #endif
             }
         }
@@ -194,7 +193,7 @@ namespace TouchScript.InputSources
 
         [SerializeField]
         [ToggleLeft]
-        private bool windowsGesturesManagement = true;
+        private WindowProperties windowProperties = WindowProperties.Ignore;
 
         private MouseHandler mouseHandler;
         private TouchHandler touchHandler;
@@ -246,6 +245,19 @@ namespace TouchScript.InputSources
         }
 
         /// <inheritdoc />
+        public override void UpdateWindowsInput()
+        {
+            base.UpdateWindowsInput();
+
+            mouseHandler?.UpdateWindowsInput();
+            touchHandler?.UpdateWindowsInput();
+#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+            windows8PointerHandler?.UpdateWindowsInput();
+            windows7PointerHandler?.UpdateWindowsInput();
+#endif
+        }
+
+        /// <inheritdoc />
         public override bool CancelPointer(Pointer pointer, bool shouldReturn)
         {
             base.CancelPointer(pointer, shouldReturn);
@@ -259,18 +271,6 @@ namespace TouchScript.InputSources
 #endif
 
             return handled;
-        }
-
-        public override void UpdateWindowsInput(IntPtr[] hwnds)
-        {
-            base.UpdateWindowsInput(hwnds);
-
-            mouseHandler?.UpdateWindowsInput(hwnds);
-            touchHandler?.UpdateWindowsInput(hwnds);
-#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
-            windows8PointerHandler?.UpdateWindowsInput(hwnds);
-            windows7PointerHandler?.UpdateWindowsInput(hwnds);
-#endif
         }
 
         /// <inheritdoc />
@@ -422,7 +422,9 @@ namespace TouchScript.InputSources
 #if UNITY_STANDALONE_WIN && !UNITY_EDITOR
         private void enableWindows7Touch()
         {
-            windows7PointerHandler = new Windows7PointerHandler(addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer);
+            var hwnd = WindowsUtils.GetActiveWindow();
+            windows7PointerHandler = new Windows7PointerHandler(hwnd, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer);
+            windows7PointerHandler.WindowProperties = WindowProperties;
             UnityConsoleLogger.Log("[TouchScript] Initialized Windows 7 pointer input.");
         }
 
@@ -437,7 +439,9 @@ namespace TouchScript.InputSources
 
         private void enableWindows8Touch()
         {
-            windows8PointerHandler = new Windows8PointerHandler(addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer);
+            var hwnd = WindowsUtils.GetActiveWindow();
+            windows8PointerHandler = new Windows8PointerHandler(hwnd, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer);
+            windows8PointerHandler.WindowProperties = WindowProperties;
             windows8PointerHandler.MouseInPointer = windows8Mouse;
             UnityConsoleLogger.Log("[TouchScript] Initialized Windows 8 pointer input.");
         }

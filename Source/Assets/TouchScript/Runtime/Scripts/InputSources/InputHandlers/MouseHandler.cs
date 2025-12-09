@@ -263,6 +263,9 @@ namespace TouchScript.InputSources.InputHandlers
         }
 
         /// <inheritdoc />
+        public virtual void UpdateWindowsInput() {}
+
+        /// <inheritdoc />
         public bool CancelPointer(Pointer pointer, bool shouldReturn)
         {
             if (pointer.Equals(mousePointer))
@@ -279,8 +282,6 @@ namespace TouchScript.InputSources.InputHandlers
             }
             return false;
         }
-
-        public void UpdateWindowsInput(IntPtr[] hwnds) {}
 
         /// <summary>
         /// Releases resources.

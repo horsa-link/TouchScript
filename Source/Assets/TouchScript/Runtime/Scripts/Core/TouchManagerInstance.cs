@@ -146,23 +146,6 @@ namespace TouchScript.Core
         /// <inheritdoc />
         public bool ShouldCreateCameraLayer { get; set; } = true;
 
-        /// <summary>
-        /// Enables or disables Windows 11 gestures (e.g. edge gestures, tap feedback, right click etc)
-        /// </summary>
-        public bool WindowsGesturesManagement
-        {
-            set
-            {
-                for (var i = 0; i < inputCount; i++)
-                {
-                    if (inputs[i] is MultiWindowStandardInput standardInput)
-                    {
-                        standardInput.WindowsGesturesManagement = value;
-                    }
-                }
-            }
-        }
-
         /// <inheritdoc />
         public bool ShouldCreateStandardInput { get; set; } = true;
 
@@ -304,16 +287,10 @@ namespace TouchScript.Core
             foreach (var input in inputs) input.UpdateResolution();
         }
 
+        /// <inheritdoc />
         public void UpdateWindowsInput(IntPtr[] hwnds)
         {
-            for (var i = 0; i < inputCount; i++)
-            {
-                if (inputs[i] is MultiWindowStandardInput {WindowsGesturesManagement: true})
-                {
-                    // if there is a new Window we reset all of them
-                    inputs[i].UpdateWindowsInput(DisplayDevices.Instance.WindowHandles);
-                }
-            }
+            foreach (var input in inputs) input.UpdateWindowsInput();
         }
 
         internal void INTERNAL_AddPointer(Pointer pointer)

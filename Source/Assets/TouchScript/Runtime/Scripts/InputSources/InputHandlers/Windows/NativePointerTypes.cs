@@ -1,4 +1,4 @@
-﻿#if UNITY_STANDALONE_WIN
+#if UNITY_STANDALONE_WIN
 using System;
 using System.Runtime.InteropServices;
 
@@ -113,6 +113,22 @@ namespace TouchScript.InputSources.InputHandlers.Interop
         public uint Pressure;
         public int TiltX;
         public int TiltY;
+    }
+
+    enum FeedbackType : uint
+    {
+        FeedbackTouchContactVisualization = 1,
+        FeedbackPenBarrelVisualization = 2,
+        FeedbackPenTap = 3,
+        FeedbackDoubleTap = 4,
+        FeedbackPenPressAndHold = 5,
+        FeedbackPenRightTap = 6,
+        FeedbackTouchTap = 7,
+        FeedbackTouchDoubleTap = 8,
+        FeedbackTouchPressAndHold = 9,
+        FeedbackTouchRightTap = 10,
+        FeedbackGesturePressAndTap = 11,
+        FeedbackMax = 0xFFFFFFFF
     }
 }
 #endif

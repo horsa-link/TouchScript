@@ -70,9 +70,6 @@ namespace TouchScript.InputSources.InputHandlers
             }
 
             WindowsUtils.EnableMouseInPointer(false);
-#if !UNITY_EDITOR
-            foreach (var h in windowHandles) WindowsPointerHandler.ResetTouchSettingToWindow(h.Item1, h.Item2);
-#endif
 
             base.Dispose();
         }

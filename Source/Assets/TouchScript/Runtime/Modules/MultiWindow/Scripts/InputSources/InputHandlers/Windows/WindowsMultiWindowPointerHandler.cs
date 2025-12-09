@@ -1,16 +1,17 @@
 ﻿#if UNITY_STANDALONE_WIN
 
-using System;
-using System.Collections.Generic;
 using AOT;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using TouchScript.Debugging.Loggers;
 using TouchScript.InputSources.InputHandlers.Interop;
 using TouchScript.Pointers;
 using TouchScript.Utils.Platform;
 using UnityEngine;
-using PointerType = TouchScript.InputSources.InputHandlers.Interop.PointerType;
-using PointerEvent = TouchScript.InputSources.InputHandlers.Interop.PointerEvent;
 using PointerData = TouchScript.InputSources.InputHandlers.Interop.PointerData;
+using PointerEvent = TouchScript.InputSources.InputHandlers.Interop.PointerEvent;
+using PointerType = TouchScript.InputSources.InputHandlers.Interop.PointerType;
 
 namespace TouchScript.InputSources.InputHandlers
 {
@@ -19,8 +20,6 @@ namespace TouchScript.InputSources.InputHandlers
     /// </summary>
     class WindowsMultiWindowPointerHandler : MultiWindowPointerHandler, IDisposable
     {
-        const string PRESS_AND_HOLD_ATOM = "MicrosoftTabletPenServiceProperty";
-        
         public override int TargetDisplay
         {
             get => targetDisplay;
@@ -34,13 +33,26 @@ namespace TouchScript.InputSources.InputHandlers
             }
         }
 
+        public WindowProperties WindowProperties
+        {
+            set
+            {
+#if !UNITY_EDITOR
+                if (TouchManager.Instance is MonoBehaviour touchManagerGo)
+                {
+                    touchManagerGo.StartCoroutine(updateWindowsInputCo(value));
+                }
+#endif
+            }
+        }
+
         private readonly IntPtr hWindow;
-        private ushort pressAndHoldAtomID;
         private readonly Dictionary<int, TouchPointer> winTouchToInternalId = new(10);
 
-        private NativePointerHandler pointerHandler;
-        private readonly MessageCallback messageCallback;
-        private readonly PointerCallback pointerCallback;
+        private WindowsMultiWindowNativePointerHandler pointerHandler;
+        private NativeWindowHandler nativeWindowHandler;
+        private readonly WindowsMultiWindowNativeLog messageCallback;
+        private readonly WindowsMultiWindowNativePointerDelegate pointerCallback;
         
         protected WindowsMultiWindowPointerHandler(int targetDisplay, IntPtr hWindow, PointerDelegate addPointer,
             PointerDelegate updatePointer, PointerDelegate pressPointer, PointerDelegate releasePointer,
@@ -52,8 +64,16 @@ namespace TouchScript.InputSources.InputHandlers
             messageCallback = onNativeMessage;
             pointerCallback = onNativePointer;
 
-            pointerHandler = new NativePointerHandler();
+            pointerHandler = new WindowsMultiWindowNativePointerHandler();
+            nativeWindowHandler = new NativeWindowHandler(this.hWindow);
         }
+
+        /// <inheritdoc />
+        public override void UpdateWindowsInput()
+        {
+            WindowProperties = nativeWindowHandler.windowProperties;
+        }
+
 
         /// <inheritdoc />
         public override bool CancelPointer(Pointer pointer, bool shouldReturn)
@@ -88,51 +108,44 @@ namespace TouchScript.InputSources.InputHandlers
             foreach (var i in winTouchToInternalId) cancelPointer(i.Value);
             winTouchToInternalId.Clear();
 
-            enablePressAndHold();
 #if !UNITY_EDITOR
-            foreach (var h in windowHandles) WindowsPointerHandler.ResetTouchSettingToWindow(h.Item1, h.Item2);
+            nativeWindowHandler.ResetWindowProperties();
 #endif
             pointerHandler.Dispose();
             pointerHandler = null;
         }
 
+        #region Protected methods
+
         protected void initialize(TOUCH_API api)
         {
             pointerHandler.Initialize(messageCallback, targetDisplay, api, hWindow, pointerCallback);
-            disablePressAndHold();
-            setScaling();
+            UpdateWindowsInput();
         }
         
         protected override void setScaling()
         {
             WindowsUtilsEx.GetNativeMonitorResolution(hWindow, out var width, out var height);
-            pointerHandler.SetScreenParams(messageCallback, width, height,
-                0, 0, 1, 1);
-        }
-        
-        private void disablePressAndHold()
-        {
-            // https://msdn.microsoft.com/en-us/library/bb969148(v=vs.85).aspx
-            pressAndHoldAtomID = WindowsUtils.GlobalAddAtom(PRESS_AND_HOLD_ATOM);
-            WindowsUtils.SetProp(hWindow, PRESS_AND_HOLD_ATOM,
-                WindowsUtils.TABLET_DISABLE_PRESSANDHOLD | // disables press and hold (right-click) gesture
-                WindowsUtils.TABLET_DISABLE_PENTAPFEEDBACK | // disables UI feedback on pen up (waves)
-                WindowsUtils.TABLET_DISABLE_PENBARRELFEEDBACK | // disables UI feedback on pen button down (circle)
-                WindowsUtils.TABLET_DISABLE_FLICKS // disables pen flicks (back, forward, drag down, drag up);
-            );
+            pointerHandler.SetScreenParams(messageCallback, width, height, 0, 0, 1, 1);
         }
 
-        private void enablePressAndHold()
-        {
-            if (pressAndHoldAtomID != 0)
-            {
-                WindowsUtils.RemoveProp(hWindow, PRESS_AND_HOLD_ATOM);
-                WindowsUtils.GlobalDeleteAtom(pressAndHoldAtomID);
-            }
-        }
+        #endregion
         
+        #region Private functions
+
+        private IEnumerator updateWindowsInputCo(WindowProperties windowProperties)
+        {
+            yield return nativeWindowHandler.ApplyWindowPropertiesAsync(windowProperties);
+
+            setScaling();
+        }
+
+        #endregion
+        
+        #region Pointer callbacks
+
         // Attribute used for IL2CPP
-        [MonoPInvokeCallback(typeof(MessageCallback))]
+        [MonoPInvokeCallback(typeof(WindowsMultiWindowNativeLog))]
         private void onNativeMessage(int messageType, string message)
         {
             switch (messageType)
@@ -299,6 +312,8 @@ namespace TouchScript.InputSources.InputHandlers
             if (reliable) return data.Rotation / 180f * Mathf.PI;
             return PenPointer.DEFAULT_ROTATION;
         }
+
+        #endregion       
     }
 }
 

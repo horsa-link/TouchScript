@@ -18,15 +18,6 @@ namespace TouchScript.Utils.Platform
     /// </summary>
     public static class WindowsUtils
     {
-        // disables press and hold (right-click) gesture
-        public const int TABLET_DISABLE_PRESSANDHOLD = 0x00000001;
-        // disables UI feedback on pen up (waves)
-        public const int TABLET_DISABLE_PENTAPFEEDBACK = 0x00000008;
-        // disables UI feedback on pen button down (circle)
-        public const int TABLET_DISABLE_PENBARRELFEEDBACK = 0x00000010;
-        // disables pen flicks (back, forward, drag down, drag up);
-        public const int TABLET_DISABLE_FLICKS = 0x00010000;
-
         public const int MONITOR_DEFAULTTONEAREST = 2;
 
         private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
@@ -217,6 +208,7 @@ namespace TouchScript.Utils.Platform
         {
             [FieldOffset(0)] public short vt;
             [FieldOffset(8)] public short boolVal; // CLS-compliant: bool to short
+            [FieldOffset(8)] public IntPtr pwszVal;
         }
 
         [ComImport]
@@ -229,6 +221,22 @@ namespace TouchScript.Utils.Platform
             void GetValue(ref PropertyKey key, ref PropVariant pv);
             void SetValue(ref PropertyKey key, ref PropVariant pv);
             void Commit();
+        }
+
+        public enum Tablet
+        {
+            TABLET_DISABLE_PRESSANDHOLD        = 0x00000001,    // disables press and hold (right-click) gesture
+            TABLET_DISABLE_PENTAPFEEDBACK      = 0x00000008,    // disables UI feedback on pen up (waves)
+            TABLET_DISABLE_PENBARRELFEEDBACK   = 0x00000010,    // disables UI feedback on pen button down (circle)
+            TABLET_DISABLE_TOUCHUIFORCEON      = 0x00000100,
+            TABLET_DISABLE_TOUCHUIFORCEOFF     = 0x00000200,
+            TABLET_DISABLE_TOUCHSWITCH         = 0x00008000,
+            TABLET_DISABLE_FLICKS              = 0x00010000,    // disables pen flicks (back, forward, drag down, drag up);
+            TABLET_ENABLE_FLICKSONCONTEXT      = 0x00020000,
+            TABLET_ENABLE_FLICKLEARNINGMODE    = 0x00040000,
+            TABLET_DISABLE_SMOOTHSCROLLING     = 0x00080000,
+            TABLET_DISABLE_FLICKFALLBACKKEYS   = 0x00100000,
+            TABLET_ENABLE_MULTITOUCHDATA       = 0x01000000
         }
 
         [DllImport("user32.dll", SetLastError = true)]
@@ -259,28 +267,31 @@ namespace TouchScript.Utils.Platform
         [DllImport("user32.dll", SetLastError = true)]
         public static extern bool GetWindowFeedbackSetting(IntPtr hwnd, uint feedback, uint dwFlags, ref uint size, IntPtr config);
 
-        [DllImport("user32.dll")]
+        [DllImport("user32.dll", SetLastError = true)]
         public static extern IntPtr GetActiveWindow();
 
-        [DllImport("user32.dll")]
+        [DllImport("user32.dll", SetLastError = true)]
         public static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint dwFlags);
 
-        [DllImport("user32.dll")]
+        [DllImport("user32.dll", SetLastError = true)]
         public static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
 
-        [DllImport("Kernel32.dll")]
+        [DllImport("Kernel32.dll", SetLastError = true)]
         public static extern ushort GlobalAddAtom(string lpString);
 
-        [DllImport("Kernel32.dll")]
+        [DllImport("Kernel32.dll", SetLastError = true)]
         public static extern ushort GlobalDeleteAtom(ushort nAtom);
 
-        [DllImport("user32.dll")]
-        public static extern int SetProp(IntPtr hWnd, string lpString, int hData);
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern int SetProp(IntPtr hWnd, IntPtr lpString, int hData);
 
-        [DllImport("user32.dll")]
-        public static extern int RemoveProp(IntPtr hWnd, string lpString);
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern int RemoveProp(IntPtr hWnd, IntPtr lpString);
 
-        [DllImport("user32.dll")]
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        public static extern IntPtr GetProp(IntPtr hWnd, IntPtr lpString);
+
+        [DllImport("user32.dll", SetLastError = true)]
         public static extern IntPtr EnableMouseInPointer(bool value);
     }
 }

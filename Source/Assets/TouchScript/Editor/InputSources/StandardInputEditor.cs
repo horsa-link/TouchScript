@@ -4,6 +4,7 @@
 
 using TouchScript.Editor.EditorUI;
 using TouchScript.InputSources;
+using TouchScript.InputSources.InputHandlers.Interop;
 using UnityEditor;
 using UnityEngine;
 
@@ -24,15 +25,15 @@ namespace TouchScript.Editor.InputSources
         public static readonly GUIContent TEXT_WINDOWS8_MOUSE = new GUIContent("Enable Mouse on Windows 8+");
         public static readonly GUIContent TEXT_WINDOWS7_MOUSE = new GUIContent("Enable Mouse on Windows 7");
         public static readonly GUIContent TEXT_UWP_MOUSE = new GUIContent("Enable Mouse on UWP");
+        public static readonly GUIContent TEXT_WINDOW_PROPERTIES = new GUIContent("Window properties", "Select which Window property enable, 'Ignore' will skip this process");
 
-        public static readonly GUIContent TEXT_WINDOWSGESTURES_MANAGEMENT = new GUIContent("Manages Windows gestures");
         public static readonly GUIContent TEXT_HELP = new GUIContent("This component gathers input data from various devices like touch, mouse and pen on all platforms.");
 
         private SerializedProperty basicEditor;
 
         private SerializedProperty windows8Touch, windows7Touch, webGLTouch, windows8Mouse,
                                    windows7Mouse, universalWindowsMouse, emulateSecondMousePointer,
-                                   windowsGesturesManagement;
+                                   windowProperties;
 
         private SerializedProperty generalProps, windowsProps, webglProps;
 
@@ -51,7 +52,7 @@ namespace TouchScript.Editor.InputSources
             windows7Mouse = serializedObject.FindProperty("windows7Mouse");
             universalWindowsMouse = serializedObject.FindProperty("universalWindowsMouse");
             emulateSecondMousePointer = serializedObject.FindProperty("emulateSecondMousePointer");
-            windowsGesturesManagement = serializedObject.FindProperty("windowsGesturesManagement");
+            windowProperties = serializedObject.FindProperty("windowProperties");
 
             generalProps = serializedObject.FindProperty("generalProps");
             windowsProps = serializedObject.FindProperty("windowsProps");
@@ -118,7 +119,20 @@ namespace TouchScript.Editor.InputSources
                 EditorGUILayout.PropertyField(windows8Mouse, TEXT_WINDOWS8_MOUSE);
                 EditorGUILayout.PropertyField(windows7Mouse, TEXT_WINDOWS7_MOUSE);
                 EditorGUILayout.PropertyField(universalWindowsMouse, TEXT_UWP_MOUSE);
-                EditorGUILayout.PropertyField(windowsGesturesManagement, TEXT_WINDOWSGESTURES_MANAGEMENT);
+
+                var r = EditorGUILayout.GetControlRect(true, 16f, EditorStyles.layerMaskField);
+                var label = EditorGUI.BeginProperty(r, TEXT_WINDOW_PROPERTIES, windowProperties);
+                EditorGUI.BeginChangeCheck();
+                r = EditorGUI.PrefixLabel(r, label);
+                var sFlags = (WindowProperties)EditorGUI.EnumFlagsField(r, instance.WindowProperties);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    instance.WindowProperties = sFlags;
+                    EditorUtility.SetDirty(instance);
+                }
+                EditorGUI.EndProperty();
+                EditorGUILayout.Space();
+
                 EditorGUI.indentLevel--;
             }
         }

@@ -4,6 +4,7 @@ using System;
 using System;
 using TouchScript.Core;
 using TouchScript.Debugging.Loggers;
+using TouchScript.InputSources.InputHandlers.Interop;
 using TouchScript.Pointers;
 using TouchScript.Utils.Attributes;
 using UnityEngine;
@@ -47,8 +48,21 @@ namespace TouchScript.InputSources.InputHandlers
             }
         }
 
+        public WindowProperties WindowProperties
+        {
+            get { return windowProperties; }
+            set
+            {
+                windowProperties = value;
+#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+                if (pointerHandler is WindowsMultiWindowPointerHandler pHandler) pHandler.WindowProperties = value;
+#endif
+            }
+        }
+
         [SerializeField, Min(0)] private int targetDisplay;
         [ToggleLeft, SerializeField] private bool emulateSecondMousePointer = true;
+        [ToggleLeft, SerializeField] private WindowProperties windowProperties = WindowProperties.Ignore;
         
 #pragma warning disable CS0414
 
@@ -62,20 +76,6 @@ namespace TouchScript.InputSources.InputHandlers
 #if !UNITY_EDITOR
         private MultiWindowPointerHandler pointerHandler;
 #endif
-        [SerializeField]
-        [ToggleLeft]
-        private bool windowsGesturesManagement = true;
-        public bool WindowsGesturesManagement
-        {
-            get { return windowsGesturesManagement; }
-            set
-            {
-                windowsGesturesManagement = value;
-#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
-                if (pointerHandler != null) pointerHandler.WindowsGesturesManagement = value;
-#endif
-            }
-        }
 
         /// <inheritdoc />
         protected override void OnEnable()
@@ -161,6 +161,16 @@ namespace TouchScript.InputSources.InputHandlers
         }
         
         /// <inheritdoc />
+        public override void UpdateWindowsInput()
+        {
+            base.UpdateWindowsInput();
+            mouseHandler?.UpdateWindowsInput();
+#if !UNITY_EDITOR
+            pointerHandler?.UpdateWindowsInput();
+#endif
+        }
+
+        /// <inheritdoc />
         public override bool CancelPointer(Pointer pointer, bool shouldReturn)
         {
             base.CancelPointer(pointer, shouldReturn);
@@ -237,6 +247,7 @@ namespace TouchScript.InputSources.InputHandlers
 
             var windows8PointerHandler = new Windows8MultiWindowPointerHandler(TargetDisplay, window, addPointer,
                 updatePointer, pressPointer, releasePointer, removePointer, cancelPointer);
+            windows8PointerHandler.WindowProperties = WindowProperties;
             windows8PointerHandler.MouseInPointer = true;
             pointerHandler = windows8PointerHandler;
 
@@ -255,21 +266,13 @@ namespace TouchScript.InputSources.InputHandlers
 
             var x11PointerHandler = new X11MultiWindowPointerHandler(TargetDisplay, window, addPointer, updatePointer,
                 pressPointer, releasePointer, removePointer, cancelPointer);
+            //x11PointerHandler.WindowProperties = WindowProperties;    // FIXME: not implemented yet
             pointerHandler = x11PointerHandler;
 
             UnityConsoleLogger.Log($"Initialized X11 pointer input for display {TargetDisplay + 1}.");
         }
 # endif
 #endif
-
-        public override void UpdateWindowsInput(IntPtr[] hwnds)
-        {
-            base.UpdateWindowsInput(hwnds);
-            mouseHandler?.UpdateWindowsInput(hwnds);
-#if !UNITY_EDITOR
-            pointerHandler?.UpdateWindowsInput(hwnds);
-#endif
-        }
 
         private void DoDisable()
         {
