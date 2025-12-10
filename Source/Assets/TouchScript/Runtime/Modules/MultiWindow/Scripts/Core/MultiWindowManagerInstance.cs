@@ -4,14 +4,12 @@ using System.Collections.Generic;
 using TouchScript.InputSources.InputHandlers;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TouchScript.Debugging.Loggers;
 #if !UNITY_EDITOR
 using System.Diagnostics;
 using System.Text;
-using TouchScript.Debugging.Loggers;
-
 # if UNITY_STANDALONE_WIN
 using TouchScript.Utils.Platform;
-using Debug = UnityEngine.Debug;
 # endif
 #endif
 

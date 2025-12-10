@@ -225,13 +225,25 @@ namespace TouchScript.Utils.Platform
 
         public enum Tablet
         {
-            TABLET_DISABLE_PRESSANDHOLD        = 0x00000001,    // disables press and hold (right-click) gesture
-            TABLET_DISABLE_PENTAPFEEDBACK      = 0x00000008,    // disables UI feedback on pen up (waves)
-            TABLET_DISABLE_PENBARRELFEEDBACK   = 0x00000010,    // disables UI feedback on pen button down (circle)
+            /// <summary>
+            /// disables press and hold (right-click) gesture
+            /// </summary>
+            TABLET_DISABLE_PRESSANDHOLD        = 0x00000001,
+            /// <summary>
+            /// disables UI feedback on pen up (waves)
+            /// </summary>
+            TABLET_DISABLE_PENTAPFEEDBACK      = 0x00000008,
+            /// <summary>
+            /// disables UI feedback on pen button down (circle)
+            /// </summary>
+            TABLET_DISABLE_PENBARRELFEEDBACK   = 0x00000010,
             TABLET_DISABLE_TOUCHUIFORCEON      = 0x00000100,
             TABLET_DISABLE_TOUCHUIFORCEOFF     = 0x00000200,
             TABLET_DISABLE_TOUCHSWITCH         = 0x00008000,
-            TABLET_DISABLE_FLICKS              = 0x00010000,    // disables pen flicks (back, forward, drag down, drag up);
+            /// <summary>
+            /// disables pen flicks (back, forward, drag down, drag up)
+            /// </summary>
+            TABLET_DISABLE_FLICKS              = 0x00010000,
             TABLET_ENABLE_FLICKSONCONTEXT      = 0x00020000,
             TABLET_ENABLE_FLICKLEARNINGMODE    = 0x00040000,
             TABLET_DISABLE_SMOOTHSCROLLING     = 0x00080000,

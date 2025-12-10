@@ -145,15 +145,14 @@ namespace TouchScript.InputSources.InputHandlers
         /// <inheritdoc />
         public bool UpdateInput()
         {
-            var pos = Input.mousePosition;
-
             // Added to MouseHandler to check if the mouse is at the set target display 
-            var displayRelativePos = GetDisplayRelativeMouseAt(pos);
+            var displayRelativePos = GetDisplayRelativeMouseAt(Input.mousePosition);
             if ((int)displayRelativePos.z != TargetDisplay)
             {
                 return false;
             }
 
+            var pos = displayRelativePos;
             var remappedPos = new Vector2(0, 0);
             var updated = false;
 
