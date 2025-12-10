@@ -511,8 +511,6 @@ namespace TouchScript.Core
 
             createCameraLayer();
             createInput();
-
-            UpdateWindowsInput(null);
         }
 
         private void Update()

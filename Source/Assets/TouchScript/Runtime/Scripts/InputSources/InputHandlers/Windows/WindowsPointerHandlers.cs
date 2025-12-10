@@ -68,7 +68,7 @@ namespace TouchScript.InputSources.InputHandlers
         #region Constructor
 
         /// <inheritdoc />
-        public Windows8PointerHandler(IntPtr hWindow, PointerDelegate addPointer, PointerDelegate updatePointer, PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer, PointerDelegate cancelPointer) : base(hWindow, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
+        public Windows8PointerHandler(IntPtr hWindow, WindowProperties windowProperties, PointerDelegate addPointer, PointerDelegate updatePointer, PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer, PointerDelegate cancelPointer) : base(hWindow, windowProperties, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
         {
             mousePool = new ObjectPool<MousePointer>(4, () => new MousePointer(this), null, resetPointer);
             penPool = new ObjectPool<PenPointer>(2, () => new PenPointer(this), null, resetPointer);
@@ -145,7 +145,7 @@ namespace TouchScript.InputSources.InputHandlers
     sealed class Windows7PointerHandler : WindowsPointerHandler
     {
         /// <inheritdoc />
-        public Windows7PointerHandler(IntPtr hWindow, PointerDelegate addPointer, PointerDelegate updatePointer, PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer, PointerDelegate cancelPointer) : base(hWindow, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
+        public Windows7PointerHandler(IntPtr hWindow, WindowProperties windowProperties, PointerDelegate addPointer, PointerDelegate updatePointer, PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer, PointerDelegate cancelPointer) : base(hWindow, windowProperties, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
         {
             init(TOUCH_API.WIN7);
         }
@@ -223,7 +223,7 @@ namespace TouchScript.InputSources.InputHandlers
         /// <param name="releasePointer">A function called when a pointer is lifted off.</param>
         /// <param name="removePointer">A function called when a pointer is removed.</param>
         /// <param name="cancelPointer">A function called when a pointer is cancelled.</param>
-        public WindowsPointerHandler(IntPtr hWindow, PointerDelegate addPointer, PointerDelegate updatePointer, PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer, PointerDelegate cancelPointer)
+        public WindowsPointerHandler(IntPtr hWindow, WindowProperties windowProperties, PointerDelegate addPointer, PointerDelegate updatePointer, PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer, PointerDelegate cancelPointer)
         {
             this.hWindow = hWindow;
             this.addPointer = addPointer;
@@ -237,7 +237,7 @@ namespace TouchScript.InputSources.InputHandlers
             nativePointerDelegate = nativePointer;
 
             nativePointerHandler = new NativePointerHandler();
-            nativeWindowHandler = new NativeWindowHandler(this.hWindow);
+            nativeWindowHandler = new NativeWindowHandler(this.hWindow, windowProperties);
 
             touchPool = new ObjectPool<TouchPointer>(10, () => new TouchPointer(this), null, resetPointer);
             setScaling();

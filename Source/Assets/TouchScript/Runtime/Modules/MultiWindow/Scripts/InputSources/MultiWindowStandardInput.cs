@@ -235,10 +235,9 @@ namespace TouchScript.InputSources.InputHandlers
         }
 
 #if !UNITY_EDITOR
-
-# if UNITY_STANDALONE_WIN
         private void EnableTouch()
         {
+# if UNITY_STANDALONE_WIN
             var window = multiWindowManager.GetWindowHandle(targetDisplay);
             if (window == IntPtr.Zero)
             {
@@ -246,18 +245,12 @@ namespace TouchScript.InputSources.InputHandlers
                 return;
             }
 
-            var windows8PointerHandler = new Windows8MultiWindowPointerHandler(TargetDisplay, window, addPointer,
-                updatePointer, pressPointer, releasePointer, removePointer, cancelPointer);
-            windows8PointerHandler.WindowProperties = WindowProperties;
+            var windows8PointerHandler = new Windows8MultiWindowPointerHandler(TargetDisplay, window, WindowProperties, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer);
             windows8PointerHandler.MouseInPointer = false;
             pointerHandler = windows8PointerHandler;
 
             UnityConsoleLogger.Log($"Initialized Windows pointer input for display {TargetDisplay + 1}.");
-        }
-
 # elif UNITY_STANDALONE_LINUX
-        private void EnableTouch()
-        {
             var window = multiWindowManager.GetWindowHandle(targetDisplay);
             if (window == IntPtr.Zero)
             {
@@ -265,14 +258,12 @@ namespace TouchScript.InputSources.InputHandlers
                 return;
             }
 
-            var x11PointerHandler = new X11MultiWindowPointerHandler(TargetDisplay, window, addPointer, updatePointer,
-                pressPointer, releasePointer, removePointer, cancelPointer);
-            //x11PointerHandler.WindowProperties = WindowProperties;    // FIXME: not implemented yet
+            var x11PointerHandler = new X11MultiWindowPointerHandler(TargetDisplay, window, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer);
             pointerHandler = x11PointerHandler;
 
             UnityConsoleLogger.Log($"Initialized X11 pointer input for display {TargetDisplay + 1}.");
-        }
 # endif
+        }
 #endif
 
         private void DoDisable()

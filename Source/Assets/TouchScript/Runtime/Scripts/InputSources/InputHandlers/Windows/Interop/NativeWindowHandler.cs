@@ -41,12 +41,14 @@ namespace TouchScript.InputSources.InputHandlers.Interop
         private static Guid IID_IPropertyStore = new("886D8EEB-8CF2-4446-8D02-CDBA1DBDCF99");
 
         private IntPtr hWindow;
-        public WindowProperties windowProperties;
         private readonly WindowProperties defaultWindowProperties;
 
-        public NativeWindowHandler(IntPtr hwnd)
+        public WindowProperties windowProperties { get; private set; }
+
+        public NativeWindowHandler(IntPtr hwnd, WindowProperties windowProperties)
         {
-            hWindow = hwnd;
+            this.hWindow = hwnd;
+            this.windowProperties = windowProperties;
 
             defaultWindowProperties = WindowProperties.Ignore; //FIXME:
             //GetDefaultWindowProperties(hWindow);

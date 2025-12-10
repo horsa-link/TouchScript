@@ -42,10 +42,10 @@ namespace TouchScript.InputSources.InputHandlers
         
         private bool mouseInPointer = true;
         
-        public Windows8MultiWindowPointerHandler(int targetDisplay, IntPtr hWindow, PointerDelegate addPointer,
+        public Windows8MultiWindowPointerHandler(int targetDisplay, IntPtr hWindow, WindowProperties windowProperties, PointerDelegate addPointer,
             PointerDelegate updatePointer, PointerDelegate pressPointer, PointerDelegate releasePointer,
             PointerDelegate removePointer, PointerDelegate cancelPointer)
-            : base(targetDisplay, hWindow, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
+            : base(targetDisplay, hWindow, windowProperties, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
         {
             mousePool = new ObjectPool<MousePointer>(4, () => new MousePointer(this), null, resetPointer);
             penPool = new ObjectPool<PenPointer>(2, () => new PenPointer(this), null, resetPointer);

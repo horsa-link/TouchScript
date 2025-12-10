@@ -269,7 +269,6 @@ namespace TouchScript.Devices.Display
 
             if (_checkForWindows && Time.frameCount % 30 == 0)
             {
-                UnityConsoleLogger.Log("Checking window changes");
                 // we finish to check for new Window handles only if there is a Window hierarchy change at SO level (window added/removed)
                 if(onWindowsUpdated())
                 {

@@ -55,7 +55,7 @@ namespace TouchScript.InputSources.InputHandlers
         
         protected readonly Dictionary<int, TouchPointer> winTouchToInternalId = new(10);
         
-        protected WindowsMultiWindowPointerHandler(int targetDisplay, IntPtr hWindow, PointerDelegate addPointer,
+        protected WindowsMultiWindowPointerHandler(int targetDisplay, IntPtr hWindow, WindowProperties windowProperties, PointerDelegate addPointer,
             PointerDelegate updatePointer, PointerDelegate pressPointer, PointerDelegate releasePointer,
             PointerDelegate removePointer, PointerDelegate cancelPointer)
             : base(targetDisplay, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
@@ -66,7 +66,7 @@ namespace TouchScript.InputSources.InputHandlers
             pointerCallback = onNativePointer;
 
             pointerHandler = new WindowsMultiWindowNativePointerHandler();
-            nativeWindowHandler = new NativeWindowHandler(this.hWindow);
+            nativeWindowHandler = new NativeWindowHandler(this.hWindow, windowProperties);
         }
 
         /// <inheritdoc />
