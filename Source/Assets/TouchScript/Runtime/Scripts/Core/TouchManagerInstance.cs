@@ -15,9 +15,9 @@ using TouchScript.Utils;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.SceneManagement;
+using TouchScript.Debugging.Loggers;
 #if TOUCHSCRIPT_DEBUG
 using TouchScript.Debugging.GL;
-using TouchScript.Debugging.Loggers;
 #endif
 
 namespace TouchScript.Core
