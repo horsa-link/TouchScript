@@ -469,9 +469,6 @@ namespace TouchScript.Core
 
             layerManager = LayerManager.Instance;
 
-            DisplayDevices.Instance.OnWindowsActivated += UpdateWindowsInput;
-            DisplayDevices.Instance.Init();
-
             UpdateResolution();
 
             StopAllCoroutines();
@@ -518,7 +515,6 @@ namespace TouchScript.Core
             sendFrameStartedToPointers();
             updateInputs();
             updatePointers();
-            updateWindowsInput();
         }
 
         private void OnApplicationQuit()
@@ -575,11 +571,6 @@ namespace TouchScript.Core
             for (var i = 0; i < systemCount; i++) systems[i].PrepareInputs();
             for (var i = 0; i < inputCount; i++) inputs[i].UpdateInput();
             samplerUpdateInputs.End();
-        }
-
-        private void updateWindowsInput()
-        {
-            DisplayDevices.Instance.manualUpdate();
         }
 
         private void updateAdded(List<Pointer> pointers)
