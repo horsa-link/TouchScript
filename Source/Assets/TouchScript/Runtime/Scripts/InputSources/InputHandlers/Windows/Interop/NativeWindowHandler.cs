@@ -35,7 +35,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
         /// </summary>
         private const string PRESS_AND_HOLD_ATOM = "MicrosoftTabletPenServiceProperty";
         /// <summary>
-        /// Windows property store guid to turn off edge gestures and 3-4 fingers gestures
+        /// Windows property store Guid to turn off EdgeGestures and 3-4 fingers Gestures
         /// </summary>
         private static readonly Guid DISABLE_TOUCH_WHEN_FULLSCREEN = new("32CE38B2-2C9A-41B1-9BC5-B3784394AA44");
         private static Guid IID_IPropertyStore = new("886D8EEB-8CF2-4446-8D02-CDBA1DBDCF99");
@@ -50,31 +50,34 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             this.hWindow = hwnd;
             this.windowProperties = windowProperties;
 
-            defaultWindowProperties = WindowProperties.Ignore; //FIXME:
-            //GetDefaultWindowProperties(hWindow);
+            defaultWindowProperties = WindowProperties.Ignore; //FIXME: GetDefaultWindowProperties(hWindow);
         }
 
-        public void ResetWindowProperties() => ApplyWindowProperties(hWindow, ~windowProperties & WindowProperties.All);
-        public void ApplyDefaultWindowProperties() => ApplyWindowProperties(defaultWindowProperties);
+        public void ResetWindowProperties() { }         //FIXME: => ApplyWindowProperties(hWindow, ~windowProperties & WindowProperties.All);
+
+        public void ApplyDefaultWindowProperties() { }  //FIXME: => ApplyWindowProperties(defaultWindowProperties);
+
         public void ApplyWindowProperties(WindowProperties windowProperties)
         {
             this.windowProperties = windowProperties;
             if (windowProperties.HasFlag(WindowProperties.Ignore)) return;
 
-            // if we're updating the EdgeGestures prop
             if (edgeGesturesNeedUpdate(windowProperties))
             {
-                UnityConsoleLogger.LogWarning($"[{nameof(NativeWindowHandler)}][{hWindow}] Updating the \"{nameof(DISABLE_TOUCH_WHEN_FULLSCREEN)}\" property in a synchronous way is not recommended, use {nameof(ApplyWindowPropertiesAsync)} instead");
+                UnityConsoleLogger.LogWarning(
+                    $"[{nameof(NativeWindowHandler)}][{hWindow}] " +
+                    $"Updating the \"{nameof(DISABLE_TOUCH_WHEN_FULLSCREEN)}\" property in a synchronous way is not recommended, use {nameof(ApplyWindowPropertiesAsync)} instead");
             }
 
             ApplyWindowProperties(hWindow, windowProperties);
         }
+
         public IEnumerator ApplyWindowPropertiesAsync(WindowProperties windowProperties, bool avoidChangingFullScreenModeIfPossible = true)
         {
             this.windowProperties = windowProperties;
             if (windowProperties.HasFlag(WindowProperties.Ignore)) yield break;
 
-            if (avoidChangingFullScreenModeIfPossible && edgeGesturesNeedUpdate(windowProperties))
+            if (avoidChangingFullScreenModeIfPossible && !edgeGesturesNeedUpdate(windowProperties))
             {
                 //ResetWindowProperties();
                 ApplyWindowProperties(hWindow, windowProperties);
@@ -115,8 +118,6 @@ namespace TouchScript.InputSources.InputHandlers.Interop
                 yield return null;
                 Screen.SetResolution(Screen.width, Screen.height, fullScreenMode);
             }
-
-            //GetDefaultWindowProperties(hWindow);
         }
 
         private void ApplyWindowProperties(IntPtr hwnd, WindowProperties windowProperties)
@@ -136,7 +137,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             enablePressAndHold(hwnd, windowProperties.HasFlag(WindowProperties.PressAndHold));
 
             enableEdgeGestures(hwnd, windowProperties.HasFlag(WindowProperties.EdgeGestures));
-            
+
             UnityConsoleLogger.Log(
                 $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
                 $"*** End {nameof(ApplyWindowProperties)} ***");
@@ -144,7 +145,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
 
         private void GetDefaultWindowProperties(IntPtr hwnd)
         {
-            foreach(var v in Enum.GetValues(typeof(FeedbackType)))
+            foreach (var v in Enum.GetValues(typeof(FeedbackType)))
             {
                 if ((FeedbackType)v == FeedbackType.FeedbackMax) continue;
                 var res = getWindowFeedbackSetting(hwnd, (FeedbackType)v);
@@ -224,7 +225,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
                         $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
                         $"Did not change the window property named \"{nameof(PRESS_AND_HOLD_ATOM)}\" into {enable}");
                 }
-                if(enable != getWindowFeedbackSetting(hwnd, FeedbackType.FeedbackTouchPressAndHold))
+                if (enable != getWindowFeedbackSetting(hwnd, FeedbackType.FeedbackTouchPressAndHold))
                 {
                     UnityConsoleLogger.LogError(
                         $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
@@ -291,17 +292,17 @@ namespace TouchScript.InputSources.InputHandlers.Interop
                     $"GetLastWin32Error: {Marshal.GetLastWin32Error()}");
                 return;
             }
-            
+
             var key = new WindowsUtils.PropertyKey { fmtid = DISABLE_TOUCH_WHEN_FULLSCREEN, pid = 2 };
             var value = new WindowsUtils.PropVariant();
             if (enable)
             {
                 //value = new WindowsUtils.PropVariant { vt = VT_EMPTY };
-                value = new WindowsUtils.PropVariant { vt = VT_BOOL, boolVal = VARIANT_FALSE }; // -1 = TRUE, 0 = FALSE
+                value = new WindowsUtils.PropVariant { vt = VT_BOOL, boolVal = VARIANT_FALSE };
             }
             else
             {
-                value = new WindowsUtils.PropVariant { vt = VT_BOOL, boolVal = VARIANT_TRUE }; // -1 = TRUE, 0 = FALSE
+                value = new WindowsUtils.PropVariant { vt = VT_BOOL, boolVal = VARIANT_TRUE };
             }
 
             propStore.SetValue(ref key, ref value);
@@ -339,7 +340,11 @@ namespace TouchScript.InputSources.InputHandlers.Interop
                     $"Cannot retrieve the property store for window named \"{nameof(DISABLE_TOUCH_WHEN_FULLSCREEN)}\", " +
                     $"GetLastWin32Error: {Marshal.GetLastWin32Error()}");
 
-                Marshal.ReleaseComObject(propStore);
+                if (propStore != null)
+                {
+                    Marshal.ReleaseComObject(propStore);
+                }
+
                 return null;
             }
 
@@ -376,7 +381,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
 
         /*-------------------------------------------------------------------------------------------*/
 
-        // FIXME: only from Windows 8 onward
+        // FIXME: only for Windows 8+ and for Windows 7?
         private bool setWindowFeedbackSetting(IntPtr hwnd, FeedbackType feedback, bool enable, bool verify = true)
         {
             var settings = new WindowsUtils.FeedbackTypeSettings { Enable = enable };
