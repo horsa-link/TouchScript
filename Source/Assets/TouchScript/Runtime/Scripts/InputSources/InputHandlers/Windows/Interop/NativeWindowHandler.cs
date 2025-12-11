@@ -108,7 +108,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
 
                 Screen.fullScreen = !isFullScreen;
                 yield return null;
-                Screen.SetResolution(Screen.width - 1, Screen.height - 1, changeToFullScreenMode);
+                Screen.SetResolution(Display.main.systemWidth - 1, Display.main.systemHeight - 1, changeToFullScreenMode);
                 yield return null;
 
                 //ResetWindowProperties();
@@ -116,7 +116,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
 
                 Screen.fullScreen = isFullScreen;
                 yield return null;
-                Screen.SetResolution(Screen.width, Screen.height, fullScreenMode);
+                Screen.SetResolution(Display.main.systemWidth, Display.main.systemHeight, fullScreenMode);
             }
         }
 
