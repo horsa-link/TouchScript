@@ -18,7 +18,7 @@ namespace TouchScript.Layers.UI
     /// <summary>
     /// An implementation of a Unity UI Input Module which lets TouchScript interact with the UI and EventSystem.
     /// </summary>
-    public class TouchScriptInputModule : BaseInputModule//TODO: bring back to internal sealed?
+    internal sealed class TouchScriptInputModule : BaseInputModule
     {
         /// <summary>
         /// TouchScriptInputModule singleton instance.
@@ -504,7 +504,7 @@ namespace TouchScript.Layers.UI
 
             public virtual void ProcessAdded(object sender, PointerEventArgs pointerEventArgs)
             {
-
+                
                 uiSampler.Begin();
 
                 var pointers = pointerEventArgs.Pointers;

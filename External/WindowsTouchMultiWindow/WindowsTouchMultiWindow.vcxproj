@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>..\..\Source\Assets\TouchScript\Modules\MultiWindow\Plugins\$(Platform)\</OutDir>
+    <OutDir>..\..\Source\Assets\TouchScript\Runtime\Modules\MultiWindow\Plugins\$(Platform)\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

@@ -28,7 +28,7 @@ namespace TouchScript.InputSources.InputHandlers
                 if (targetDisplay != value)
                 {
                     targetDisplay = value;
-                    pointerHandler.SetTargetDisplay(value);
+                    pointerHandler.SetTargetDisplay(messageCallback, value);
                 }
             }
         }
@@ -48,11 +48,11 @@ namespace TouchScript.InputSources.InputHandlers
 
         private readonly IntPtr hWindow;
 
-        private WindowsMultiWindowNativePointerHandler pointerHandler;
         private NativeWindowHandler nativeWindowHandler;
-        private readonly WindowsMultiWindowNativeLog messageCallback;
         private readonly WindowsMultiWindowNativePointerDelegate pointerCallback;
         
+        protected WindowsMultiWindowNativePointerHandler pointerHandler;
+        protected readonly WindowsMultiWindowNativeLog messageCallback;
         protected readonly Dictionary<int, TouchPointer> winTouchToInternalId = new(10);
         
         protected WindowsMultiWindowPointerHandler(int targetDisplay, IntPtr hWindow, WindowProperties windowProperties, PointerDelegate addPointer,
@@ -74,7 +74,6 @@ namespace TouchScript.InputSources.InputHandlers
         {
             WindowProperties = nativeWindowHandler.windowProperties;
         }
-
 
         /// <inheritdoc />
         public override bool CancelPointer(Pointer pointer, bool shouldReturn)
@@ -127,7 +126,7 @@ namespace TouchScript.InputSources.InputHandlers
         protected override void setScaling()
         {
             WindowsUtilsEx.GetNativeMonitorResolution(hWindow, out var width, out var height);
-            pointerHandler.SetScreenParams(messageCallback, width, height, 0, 0, 1, 1);
+            pointerHandler.SetDisplayParams(messageCallback, width, height, 0, 0, 1, 1);
         }
 
         #endregion
@@ -152,13 +151,13 @@ namespace TouchScript.InputSources.InputHandlers
             switch (messageType)
             {
                 case 2:
-                    UnityConsoleLogger.LogWarning($"[WindowsTouchMultiWindow.dll]: {message}");
+                    UnityConsoleLogger.LogWarning($"[WindowsTouchMultiWindow.dll] {message}");
                     break;
                 case 3:
-                    UnityConsoleLogger.LogError($"[WindowsTouchMultiWindow.dll]: {message}");
+                    UnityConsoleLogger.LogError($"[WindowsTouchMultiWindow.dll] {message}");
                     break;
                 default:
-                    UnityConsoleLogger.Log($"[WindowsTouchMultiWindow.dll]: {message}");
+                    UnityConsoleLogger.Log($"[WindowsTouchMultiWindow.dll] {message}");
                     break;
             }
         }

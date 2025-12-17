@@ -154,6 +154,7 @@ namespace TouchScript.InputSources.InputHandlers
                 return false;
             }
 
+            pos = displayRelativePos;   // FIXME:
             var remappedPos = new Vector2(0, 0);
             var updated = false;
 

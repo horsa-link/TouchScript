@@ -3,36 +3,37 @@ using TouchScript.InputSources.InputHandlers;
 using TouchScript.InputSources.InputHandlers.Interop;
 using UnityEditor;
 using UnityEngine;
+using static TouchScript.InputSources.InputHandlers.MultiWindowStandardInput;
 
 namespace TouchScript.Editor.InputSources
 {
     [CustomEditor(typeof(MultiWindowStandardInput), true)]
     public class MultiWindowStandardInputEditor : InputSourceEditor
     {
-        private static readonly int[] targetDisplays = {
-            0, 1, 2, 3, 4, 5, 6, 7
-        };
-        private static readonly GUIContent[] targetDisplayNames = {
-            new GUIContent("Display 1"),
-            new GUIContent("Display 2"),
-            new GUIContent("Display 3"),
-            new GUIContent("Display 4"),
-            new GUIContent("Display 5"),
-            new GUIContent("Display 6"),
-            new GUIContent("Display 7"),
-            new GUIContent("Display 8"),
-        };
+        private enum TargetDisplays
+        {
+            Display1 = 0,
+            Display2 = 1,
+            Display3 = 2,
+            Display4 = 3,
+            Display5 = 4,
+            Display6 = 5,
+            Display7 = 6,
+            Display8 = 7,
+        }
 
         public static readonly GUIContent TEXT_GENERAL_HEADER = new GUIContent("General", "General settings.");
 
         public static readonly GUIContent TEXT_TARGET_DISPLAY = new GUIContent("Target Display", "The target display for which this component gathers input data.");
+        public static readonly GUIContent TEXT_MOUSE = new GUIContent("Mouse", "Select if and how mouse events should be processed.");
         public static readonly GUIContent TEXT_EMULATE_MOUSE = new GUIContent("Emulate Second Mouse Pointer", "If selected, you can press ALT to make a stationary mouse pointer. This is used to simulate multi-touch.");
-        public static readonly GUIContent TEXT_WINDOW_PROPERTIES = new GUIContent("Window properties", "Select which Window property enable, 'Ignore' will skip this process");
+        public static readonly string TEXT_MOUSE_AS_MOUSE_POINTER_UNSUPPORTED = $"With the new InputSystem the mouse is always processed as a Touch pointer, however changing this property to '{MouseProperties.Enable}' or '{MouseProperties.EnableAndEmulateSecondPointer}' will restore the Mouse input module and its functionalities.";
+        public static readonly GUIContent TEXT_WINDOW_PROPERTIES = new GUIContent("Window Properties", "Select which Window property enable, 'Ignore' will skip this process");
 
         public static readonly GUIContent TEXT_HELP = new GUIContent("This component gathers window specific input data from mouse devices, and touch device on the Windows and Linux platforms.");
 
         private SerializedProperty basicEditor;
-        private SerializedProperty targetDisplay, emulateSecondMousePointer, windowProperties;
+        private SerializedProperty targetDisplay, mouseProperty, windowProperties;
         private SerializedProperty generalProps, windowsProps;
 
         private MultiWindowStandardInput instance;
@@ -44,7 +45,7 @@ namespace TouchScript.Editor.InputSources
             instance = target as MultiWindowStandardInput;
             basicEditor = serializedObject.FindProperty("basicEditor");
             targetDisplay = serializedObject.FindProperty("targetDisplay");
-            emulateSecondMousePointer = serializedObject.FindProperty("emulateSecondMousePointer");
+            mouseProperty = serializedObject.FindProperty("mouseProperty");
             windowProperties = serializedObject.FindProperty("windowProperties");
             generalProps = serializedObject.FindProperty("generalProps");
             windowsProps = serializedObject.FindProperty("windowsProps");
@@ -77,15 +78,25 @@ namespace TouchScript.Editor.InputSources
 
         private void DoDrawGeneral()
         {
+            Rect r;
+            GUIContent label;
+
+            r = EditorGUILayout.GetControlRect(true, 16f, EditorStyles.popup);
+            label = EditorGUI.BeginProperty(r, TEXT_TARGET_DISPLAY, targetDisplay);
             EditorGUI.BeginChangeCheck();
-            EditorGUILayout.PropertyField(emulateSecondMousePointer, TEXT_EMULATE_MOUSE);
+            r = EditorGUI.PrefixLabel(r, label);
+            var sFlags1 = (TargetDisplays)EditorGUI.EnumPopup(r, (TargetDisplays)instance.TargetDisplay);
             if (EditorGUI.EndChangeCheck())
             {
-                instance.EmulateSecondMousePointer = emulateSecondMousePointer.boolValue;
+                instance.TargetDisplay = (int)sFlags1;
+                EditorUtility.SetDirty(instance);
             }
+            EditorGUI.EndProperty();
 
-            var r = EditorGUILayout.GetControlRect(true, 16f, EditorStyles.layerMaskField);
-            var label = EditorGUI.BeginProperty(r, TEXT_WINDOW_PROPERTIES, windowProperties);
+            EditorGUILayout.Space(1);
+
+            r = EditorGUILayout.GetControlRect(true, 16f, EditorStyles.layerMaskField);
+            label = EditorGUI.BeginProperty(r, TEXT_WINDOW_PROPERTIES, windowProperties);
             EditorGUI.BeginChangeCheck();
             r = EditorGUI.PrefixLabel(r, label);
             var sFlags = (WindowProperties)EditorGUI.EnumFlagsField(r, instance.WindowProperties);
@@ -95,14 +106,23 @@ namespace TouchScript.Editor.InputSources
                 EditorUtility.SetDirty(instance);
             }
             EditorGUI.EndProperty();
-            EditorGUILayout.Space();
+
+            EditorGUILayout.Space(1);
 
             EditorGUI.BeginChangeCheck();
-            EditorGUILayout.IntPopup(targetDisplay, targetDisplayNames, targetDisplays, TEXT_TARGET_DISPLAY);
+            r = EditorGUILayout.GetControlRect(true, 16f, EditorStyles.popup);
+            r = EditorGUI.PrefixLabel(r, TEXT_MOUSE);
+            var sPopup = (int)((MouseProperties)EditorGUI.EnumPopup(r, (MouseProperties)mouseProperty.enumValueIndex));
             if (EditorGUI.EndChangeCheck())
             {
-                instance.TargetDisplay = targetDisplay.intValue;
+                mouseProperty.enumValueIndex = sPopup;
+                EditorUtility.SetDirty(instance);
             }
+#if ENABLE_INPUT_SYSTEM
+            EditorGUILayout.Space(1);
+
+            EditorGUILayout.HelpBox(TEXT_MOUSE_AS_MOUSE_POINTER_UNSUPPORTED, MessageType.Warning);
+#endif
         }
 
         private void DrawGeneral()

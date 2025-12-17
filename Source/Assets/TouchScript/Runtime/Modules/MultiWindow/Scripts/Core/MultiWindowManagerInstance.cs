@@ -158,7 +158,7 @@ namespace TouchScript.Core
                 {
                     targetDisplayWindowHandles.Add(targetDisplay, windowHandle);
 
-                    UnityConsoleLogger.Log($"Registered window handle for display {targetDisplay + 1}.");
+                    UnityConsoleLogger.Log($"Registered window handle 0x{windowHandle.ToString("X")} for display {targetDisplay + 1}.");
                     
                     return windowHandle;
                 }

@@ -304,7 +304,12 @@ namespace TouchScript.Utils.Platform
         public static extern IntPtr GetProp(IntPtr hWnd, IntPtr lpString);
 
         [DllImport("user32.dll", SetLastError = true)]
-        public static extern IntPtr EnableMouseInPointer(bool value);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool EnableMouseInPointer(bool value);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool IsMouseInPointerEnabled();
     }
 }
 
