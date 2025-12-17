@@ -40,7 +40,7 @@ namespace TouchScript.InputSources.InputHandlers
 #if !UNITY_EDITOR
                 if (TouchManager.Instance is MonoBehaviour touchManagerGo)
                 {
-                    touchManagerGo.StartCoroutine(updateWindowsInputCo(value));
+                    touchManagerGo.StartCoroutine(updateWindowCo(value));
                 }
 #endif
             }
@@ -70,7 +70,7 @@ namespace TouchScript.InputSources.InputHandlers
         }
 
         /// <inheritdoc />
-        public override void UpdateWindowsInput()
+        public override void UpdateWindow()
         {
             WindowProperties = nativeWindowHandler.windowProperties;
         }
@@ -120,7 +120,7 @@ namespace TouchScript.InputSources.InputHandlers
         protected void initialize(TOUCH_API api)
         {
             pointerHandler.Initialize(messageCallback, targetDisplay, api, hWindow, pointerCallback);
-            UpdateWindowsInput();
+            UpdateWindow();
         }
         
         protected override void setScaling()
@@ -133,7 +133,7 @@ namespace TouchScript.InputSources.InputHandlers
         
         #region Private functions
 
-        private IEnumerator updateWindowsInputCo(WindowProperties windowProperties)
+        private IEnumerator updateWindowCo(WindowProperties windowProperties)
         {
             yield return nativeWindowHandler.ApplyWindowPropertiesAsync(windowProperties);
 

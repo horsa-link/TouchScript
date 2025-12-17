@@ -179,7 +179,7 @@ namespace TouchScript.InputSources.InputHandlers
 #if !UNITY_EDITOR
                 if (TouchManager.Instance is MonoBehaviour touchManagerGo)
                 {
-                    touchManagerGo.StartCoroutine(updateWindowsInputCo(value));
+                    touchManagerGo.StartCoroutine(updateWindowCo(value));
                 }
 #endif
             }
@@ -261,7 +261,7 @@ namespace TouchScript.InputSources.InputHandlers
         }
 
         /// <inheritdoc />
-        public virtual void UpdateWindowsInput()
+        public virtual void UpdateWindow()
         {
             WindowProperties = nativeWindowHandler.windowProperties;
         }
@@ -409,7 +409,7 @@ namespace TouchScript.InputSources.InputHandlers
         protected void init(TOUCH_API api)
         {
             nativePointerHandler.Initialize(api, nativeLogDelegate, nativePointerDelegate);
-            UpdateWindowsInput();
+            UpdateWindow();
         }
 
         protected Vector2 remapCoordinates(Vector2 position)
@@ -427,7 +427,7 @@ namespace TouchScript.InputSources.InputHandlers
 
         #region Private functions
 
-        private IEnumerator updateWindowsInputCo(WindowProperties windowProperties)
+        private IEnumerator updateWindowCo(WindowProperties windowProperties)
         {
             yield return nativeWindowHandler.ApplyWindowPropertiesAsync(windowProperties);
 

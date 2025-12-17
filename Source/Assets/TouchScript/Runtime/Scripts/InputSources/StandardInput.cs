@@ -247,15 +247,15 @@ namespace TouchScript.InputSources
         }
 
         /// <inheritdoc />
-        public override void UpdateWindowsInput()
+        public override void UpdateWindow()
         {
-            base.UpdateWindowsInput();
+            base.UpdateWindow();
 
-            mouseHandler?.UpdateWindowsInput();
-            touchHandler?.UpdateWindowsInput();
+            mouseHandler?.UpdateWindow();
+            touchHandler?.UpdateWindow();
 #if UNITY_STANDALONE_WIN && !UNITY_EDITOR
-            windows8PointerHandler?.UpdateWindowsInput();
-            windows7PointerHandler?.UpdateWindowsInput();
+            windows8PointerHandler?.UpdateWindow();
+            windows7PointerHandler?.UpdateWindow();
 #endif
         }
 

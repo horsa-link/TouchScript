@@ -180,13 +180,13 @@ namespace TouchScript.InputSources.InputHandlers
         }
 
         /// <inheritdoc />
-        public override void UpdateWindowsInput()
+        public override void UpdateWindow()
         {
-            base.UpdateWindowsInput();
+            base.UpdateWindow();
 #if !UNITY_EDITOR
-            pointerHandler?.UpdateWindowsInput();
+            pointerHandler?.UpdateWindow();
 #endif
-            mouseHandler?.UpdateWindowsInput();
+            mouseHandler?.UpdateWindow();
         }
 
         /// <inheritdoc />
@@ -263,7 +263,7 @@ namespace TouchScript.InputSources.InputHandlers
             var window = multiWindowManager.GetWindowHandle(targetDisplay);
             if (window == IntPtr.Zero)
             {
-                UnityConsoleLogger.LogError($"Failed to initialize Windows pointer input for display {targetDisplay + 1}.");
+                UnityConsoleLogger.LogError($"Failed to initialize Windows pointer input for display {targetDisplay}.");
                 return;
             }
 
@@ -271,7 +271,7 @@ namespace TouchScript.InputSources.InputHandlers
             windows8PointerHandler.UpdateMouse(enableMouse, enableMouseInPointer);
             pointerHandler = windows8PointerHandler;
 
-            UnityConsoleLogger.Log($"Initialized Windows pointer input for display {targetDisplay + 1}.");
+            UnityConsoleLogger.Log($"Initialized Windows pointer input for display {targetDisplay}.");
         }
 #elif UNITY_STANDALONE_LINUX
         private void EnableX11Touch()
@@ -279,14 +279,14 @@ namespace TouchScript.InputSources.InputHandlers
             var window = multiWindowManager.GetWindowHandle(targetDisplay);
             if (window == IntPtr.Zero)
             {
-                UnityConsoleLogger.LogError($"Failed to initialize X11 pointer input for display {TargetDisplay + 1}.");
+                UnityConsoleLogger.LogError($"Failed to initialize X11 pointer input for display {TargetDisplay}.");
                 return;
             }
 
             var x11PointerHandler = new X11MultiWindowPointerHandler(TargetDisplay, window, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer);
             pointerHandler = x11PointerHandler;
 
-            UnityConsoleLogger.Log($"Initialized X11 pointer input for display {TargetDisplay + 1}.");
+            UnityConsoleLogger.Log($"Initialized X11 pointer input for display {TargetDisplay}.");
         }
 #endif
 
@@ -297,7 +297,7 @@ namespace TouchScript.InputSources.InputHandlers
                 pointerHandler.Dispose();
                 pointerHandler = null;
 
-                UnityConsoleLogger.Log($"Disposed pointer input for display {TargetDisplay + 1}.");
+                UnityConsoleLogger.Log($"Disposed pointer input for display {TargetDisplay}.");
             }
         }
 #endif
@@ -341,11 +341,11 @@ namespace TouchScript.InputSources.InputHandlers
 
             if (emulateSecondMousePointer)
             {
-                UnityConsoleLogger.Log($"Initialized Unity mouse input for display {targetDisplay + 1} with second mouse pointer emulation.");
+                UnityConsoleLogger.Log($"Initialized Unity mouse input for display {targetDisplay} with second mouse pointer emulation.");
             }
             else
             {
-                UnityConsoleLogger.Log($"Initialized Unity mouse input for display {targetDisplay + 1}.");
+                UnityConsoleLogger.Log($"Initialized Unity mouse input for display {targetDisplay}.");
             }
         }
 
@@ -356,7 +356,7 @@ namespace TouchScript.InputSources.InputHandlers
                 mouseHandler.Dispose();
                 mouseHandler = null;
 
-                UnityConsoleLogger.Log($"Disposed Unity mouse input for display {TargetDisplay + 1}.");
+                UnityConsoleLogger.Log($"Disposed Unity mouse input for display {TargetDisplay}.");
             }
         }
 

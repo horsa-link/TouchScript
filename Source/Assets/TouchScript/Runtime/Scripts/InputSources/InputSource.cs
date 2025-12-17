@@ -64,7 +64,7 @@ namespace TouchScript.InputSources
         public virtual void UpdateResolution() {}
         
         /// <inheritdoc />
-        public virtual void UpdateWindowsInput() {}
+        public virtual void UpdateWindow() {}
 
         /// <inheritdoc />
         public virtual bool CancelPointer(Pointer pointer, bool shouldReturn)

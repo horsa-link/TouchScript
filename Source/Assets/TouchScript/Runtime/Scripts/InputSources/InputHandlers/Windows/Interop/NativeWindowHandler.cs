@@ -65,7 +65,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             if (edgeGesturesNeedUpdate(windowProperties))
             {
                 UnityConsoleLogger.LogWarning(
-                    $"[{nameof(NativeWindowHandler)}][{hWindow}] " +
+                    $"[{nameof(NativeWindowHandler)}][0x{hWindow}] " +
                     $"Updating the \"{nameof(DISABLE_TOUCH_WHEN_FULLSCREEN)}\" property in a synchronous way is not recommended, use {nameof(ApplyWindowPropertiesAsync)} instead");
             }
 
@@ -123,7 +123,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
         private void ApplyWindowProperties(IntPtr hwnd, WindowProperties windowProperties)
         {
             UnityConsoleLogger.Log(
-                $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
+                $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
                 $"*** Start {nameof(ApplyWindowProperties)} ***");
 
             enableTap(hwnd, windowProperties.HasFlag(WindowProperties.Tap));
@@ -139,7 +139,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             enableEdgeGestures(hwnd, windowProperties.HasFlag(WindowProperties.EdgeGestures));
 
             UnityConsoleLogger.Log(
-                $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
+                $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
                 $"*** End {nameof(ApplyWindowProperties)} ***");
         }
 
@@ -173,7 +173,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             if (atomID == 0)
             {
                 UnityConsoleLogger.LogError(
-                    $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
+                    $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
                     $"Cannot retrieve \"{nameof(PRESS_AND_HOLD_ATOM)}\" atom from atom table, " +
                     $"GetLastWin32Error: {Marshal.GetLastWin32Error()}");
                 return;
@@ -185,7 +185,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
                 if (WindowsUtils.RemoveProp(hwnd, atomStr) == 0)
                 {
                     UnityConsoleLogger.Log(
-                        $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
+                        $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
                         $"Cannot remove the window property named \"{nameof(PRESS_AND_HOLD_ATOM)}\", " +
                         $"GetLastWin32Error: {Marshal.GetLastWin32Error()}");
                 }
@@ -200,7 +200,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
                     ) == 0)
                 {
                     UnityConsoleLogger.Log(
-                        $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
+                        $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
                         $"Cannot set the window property named \"{nameof(PRESS_AND_HOLD_ATOM)}\", " +
                         $"GetLastWin32Error: {Marshal.GetLastWin32Error()}");
                 }
@@ -209,7 +209,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             if (WindowsUtils.GlobalDeleteAtom(atomID) == 0)
             {
                 UnityConsoleLogger.LogWarning(
-                    $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
+                    $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
                     $"Cannot delete \"{nameof(PRESS_AND_HOLD_ATOM)}\" atom from atom table, this can cause memory leak, " +
                     $"GetLastWin32Error: {Marshal.GetLastWin32Error()}");
             }
@@ -222,25 +222,25 @@ namespace TouchScript.InputSources.InputHandlers.Interop
                 if (enable != isPressAndHoldEnabled(hwnd))
                 {
                     UnityConsoleLogger.LogError(
-                        $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
+                        $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
                         $"Did not change the window property named \"{nameof(PRESS_AND_HOLD_ATOM)}\" into {enable}");
                 }
                 if (enable != getWindowFeedbackSetting(hwnd, FeedbackType.FeedbackTouchPressAndHold))
                 {
                     UnityConsoleLogger.LogError(
-                        $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
+                        $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
                         $"Did not change the window feedback setting named \"{Enum.GetName(typeof(FeedbackType), FeedbackType.FeedbackTouchPressAndHold)}\" into {enable}");
                 }
             }
             else
             {
                 UnityConsoleLogger.Log(
-                    $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
+                    $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
                     $"Changed the window property named \"{nameof(PRESS_AND_HOLD_ATOM)}\" and the window feedback setting named \"{Enum.GetName(typeof(FeedbackType), FeedbackType.FeedbackTouchPressAndHold)}\" into {enable}");
             }
 #else
             UnityConsoleLogger.Log(
-                $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
+                $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
                 $"Changed the window property named \"{nameof(PRESS_AND_HOLD_ATOM)}\" and the window feedback setting named \"{Enum.GetName(typeof(FeedbackType), FeedbackType.FeedbackTouchPressAndHold)}\" into {enable}");
 #endif
         }
@@ -251,7 +251,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             if (atomID == 0)
             {
                 UnityConsoleLogger.LogError(
-                    $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
+                    $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
                     $"Cannot retrieve \"{nameof(PRESS_AND_HOLD_ATOM)}\" atom from atom table, " +
                     $"GetLastWin32Error: {Marshal.GetLastWin32Error()}");
                 return false;
@@ -262,7 +262,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             if (result == 0)
             {
                 UnityConsoleLogger.Log(
-                    $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
+                    $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
                     $"Cannot get the window property named \"{nameof(PRESS_AND_HOLD_ATOM)}\", " +
                     $"GetLastWin32Error: {Marshal.GetLastWin32Error()}");
             }
@@ -270,7 +270,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             if (WindowsUtils.GlobalDeleteAtom(atomID) == 0)
             {
                 UnityConsoleLogger.LogWarning(
-                    $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
+                    $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
                     $"Cannot delete \"{nameof(PRESS_AND_HOLD_ATOM)}\" atom from atom table, this can cause memory leak, " +
                     $"GetLastWin32Error: {Marshal.GetLastWin32Error()}");
             }
@@ -287,7 +287,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             if (hr != 0 || propStore == null)
             {
                 UnityConsoleLogger.LogError(
-                    $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
+                    $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
                     $"Cannot retrieve the property store for window named \"{nameof(DISABLE_TOUCH_WHEN_FULLSCREEN)}\", " +
                     $"GetLastWin32Error: {Marshal.GetLastWin32Error()}");
                 return;
@@ -314,18 +314,18 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             if (verify && enable != areEdgeGesturesEnabled(hwnd))
             {
                 UnityConsoleLogger.LogError(
-                    $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
+                    $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
                     $"Did not change the property store for window named \"{nameof(DISABLE_TOUCH_WHEN_FULLSCREEN)}\" into {!enable}");
             }
             else
             {
                 UnityConsoleLogger.Log(
-                    $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
+                    $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
                     $"Changed the property store for window named \"{nameof(DISABLE_TOUCH_WHEN_FULLSCREEN)}\" into {!enable}");
             }
 #else
             UnityConsoleLogger.Log(
-                $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
+                $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
                 $"Changed the property store for window named \"{nameof(DISABLE_TOUCH_WHEN_FULLSCREEN)}\" into {!enable}");
 #endif
         }
@@ -336,7 +336,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             if (hr != 0 || propStore == null)
             {
                 UnityConsoleLogger.LogError(
-                    $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
+                    $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
                     $"Cannot retrieve the property store for window named \"{nameof(DISABLE_TOUCH_WHEN_FULLSCREEN)}\", " +
                     $"GetLastWin32Error: {Marshal.GetLastWin32Error()}");
 
@@ -361,7 +361,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             if (result == null)
             {
                 UnityConsoleLogger.LogError(
-                    $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
+                    $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
                     $"Cannot retrieve the property store for window named \"{nameof(DISABLE_TOUCH_WHEN_FULLSCREEN)}\", " +
                     $"{value.vt} => {value.boolVal} | {value.pwszVal}");
             }
@@ -394,7 +394,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             if (!result)
             {
                 UnityConsoleLogger.LogWarning(
-                    $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
+                    $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
                     $"Cannot change the window feedback setting named \"{Enum.GetName(typeof(FeedbackType), feedback)}\" into {enable}, " +
                     $"Win32Error: {Marshal.GetLastWin32Error().ToString("X")}");
             }
@@ -405,18 +405,18 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             if (verify && enable != getWindowFeedbackSetting(hwnd, feedback))
             {
                 UnityConsoleLogger.LogError(
-                    $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
+                    $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
                     $"Did not change the window feedback setting named \"{Enum.GetName(typeof(FeedbackType), feedback)}\" into {enable}");
             }
             else
             {
                 UnityConsoleLogger.Log(
-                    $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
+                    $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
                     $"Changed window feedback setting named \"{Enum.GetName(typeof(FeedbackType), feedback)}\" into {enable}");
             }
 #else
             UnityConsoleLogger.Log(
-                $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
+                $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
                 $"Changed window feedback setting named \"{Enum.GetName(typeof(FeedbackType), feedback)}\" into {enable}");
 #endif
 
@@ -435,7 +435,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             if (!result)
             {
                 UnityConsoleLogger.LogWarning(
-                    $"[{nameof(NativeWindowHandler)}][{hwnd.ToString("X")}] " +
+                    $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
                     $"Cannot get the window feedback setting named \"{Enum.GetName(typeof(FeedbackType), feedback)}\", " +
                     $"Win32Error: {Marshal.GetLastWin32Error().ToString("X")}");
 

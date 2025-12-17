@@ -158,7 +158,7 @@ namespace TouchScript.Core
                 {
                     targetDisplayWindowHandles.Add(targetDisplay, windowHandle);
 
-                    UnityConsoleLogger.Log($"Registered window handle 0x{windowHandle.ToString("X")} for display {targetDisplay + 1}.");
+                    UnityConsoleLogger.Log($"Registered window handle 0x{windowHandle.ToString("X")} for display {targetDisplay}.");
                     
                     return windowHandle;
                 }
@@ -227,8 +227,8 @@ namespace TouchScript.Core
             var inputs = TouchManager.Instance.Inputs;
             foreach (var input in inputs)
             {
-                if (input is MultiWindowStandardInput multiWindowInput &&
-                    multiWindowInput.isActiveAndEnabled)
+                if (input is MultiWindowStandardInput multiWindowInput 
+                    && multiWindowInput.isActiveAndEnabled)
                 {
                     multiWindowInput.UpdateInputHandlers();
                 }

@@ -36,7 +36,7 @@ namespace TouchScript.InputSources
         /// <summary>
         /// Forces the input to update its state when window changes.
         /// </summary>
-        void UpdateWindowsInput();
+        void UpdateWindow();
 
         /// <summary>
         /// Cancels the pointer.

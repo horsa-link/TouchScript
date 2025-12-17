@@ -171,7 +171,7 @@ namespace TouchScript.InputSources.InputHandlers
         public void UpdateResolution() {}
 
         /// <inheritdoc />
-        public virtual void UpdateWindowsInput() {}
+        public virtual void UpdateWindow() {}
 
         /// <inheritdoc />
         public bool CancelPointer(Pointer pointer, bool shouldReturn)

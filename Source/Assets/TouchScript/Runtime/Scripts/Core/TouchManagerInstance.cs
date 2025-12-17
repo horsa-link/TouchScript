@@ -288,9 +288,9 @@ namespace TouchScript.Core
         }
 
         /// <inheritdoc />
-        public void UpdateWindowsInput(IntPtr[] hwnds)
+        public void UpdateWindow(IntPtr[] hwnds)
         {
-            foreach (var input in inputs) input.UpdateWindowsInput();
+            foreach (var input in inputs) input.UpdateWindow();
         }
 
         internal void INTERNAL_AddPointer(Pointer pointer)

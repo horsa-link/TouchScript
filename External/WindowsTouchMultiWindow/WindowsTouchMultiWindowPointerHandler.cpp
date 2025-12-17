@@ -154,10 +154,10 @@ void PointerHandler::sendMessage(MessageCallback messageCallback, MessageType me
 {
 	if (messageCallback)
 	{
-		std::string st = 
+		std::string st =
 			"[" + std::string(mApi == TOUCH_API::WIN8 ? "WIN8" : "WIN7") + "] " +
-			"[" + std::to_string(mTargetDisplay) + "] " + 
-			"[0x" + (std::ostringstream{} << std::hex << reinterpret_cast<uintptr_t>(mHWnd)).str() + "] " +
+			"[" + std::to_string(mTargetDisplay) + "] " +
+			"[0x" + (std::ostringstream{} << std::uppercase << std::hex << reinterpret_cast<uintptr_t>(mHWnd)).str() + "] " +
 			message;
 
 		// Allocate char array
