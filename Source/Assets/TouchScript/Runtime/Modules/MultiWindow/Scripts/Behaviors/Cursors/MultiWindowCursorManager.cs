@@ -144,7 +144,7 @@ namespace TouchScript.Behaviors.Cursors
         private Dictionary<int, PointerCursor> cursors = new(10);
 
 
-		private CustomSampler cursorSampler;
+        private CustomSampler cursorSampler;
 
         #endregion
 
@@ -152,8 +152,8 @@ namespace TouchScript.Behaviors.Cursors
 
         private void Awake()
         {
-			cursorSampler = CustomSampler.Create("[TouchScript] Update Cursors");
-			cursorSampler.Begin();
+            cursorSampler = CustomSampler.Create("[TouchScript] Update Cursors");
+            cursorSampler.Begin();
 
             mousePool = new ObjectPool<PointerCursor>(2, instantiateMouseProxy, null, clearProxy);
             touchPool = new ObjectPool<PointerCursor>(10, instantiateTouchProxy, null, clearProxy);
@@ -169,7 +169,7 @@ namespace TouchScript.Behaviors.Cursors
                 enabled = false;
             }
             
-			cursorSampler.End();
+            cursorSampler.End();
         }
 
         private void OnEnable()
@@ -238,7 +238,7 @@ namespace TouchScript.Behaviors.Cursors
 
         private void pointersAddedHandler(object sender, PointerEventArgs e)
         {
-			cursorSampler.Begin();
+            cursorSampler.Begin();
 
             updateCursorSize();
 
@@ -278,12 +278,12 @@ namespace TouchScript.Behaviors.Cursors
             }
 
 
-			cursorSampler.End();
+            cursorSampler.End();
         }
 
         private void pointersRemovedHandler(object sender, PointerEventArgs e)
         {
-			cursorSampler.Begin();
+            cursorSampler.Begin();
 
             var count = e.Pointers.Count;
             for (var i = 0; i < count; i++)
@@ -313,12 +313,12 @@ namespace TouchScript.Behaviors.Cursors
                 }
             }
 
-			cursorSampler.End();
+            cursorSampler.End();
         }
 
         private void pointersPressedHandler(object sender, PointerEventArgs e)
         {
-			cursorSampler.Begin();
+            cursorSampler.Begin();
 
             var count = e.Pointers.Count;
             for (var i = 0; i < count; i++)
@@ -332,12 +332,12 @@ namespace TouchScript.Behaviors.Cursors
                 cursor.SetState(pointer, PointerCursor.CursorState.Pressed);
             }
 
-			cursorSampler.End();
+            cursorSampler.End();
         }
 
         private void PointersUpdatedHandler(object sender, PointerEventArgs e)
         {
-			cursorSampler.Begin();
+            cursorSampler.Begin();
 
             var count = e.Pointers.Count;
             for (var i = 0; i < count; i++)
@@ -351,12 +351,12 @@ namespace TouchScript.Behaviors.Cursors
                 cursor.UpdatePointer(pointer);
             }
 
-			cursorSampler.End();
+            cursorSampler.End();
         }
 
         private void pointersReleasedHandler(object sender, PointerEventArgs e)
         {
-			cursorSampler.Begin();
+            cursorSampler.Begin();
 
             var count = e.Pointers.Count;
             for (var i = 0; i < count; i++)
@@ -370,7 +370,7 @@ namespace TouchScript.Behaviors.Cursors
                 cursor.SetState(pointer, PointerCursor.CursorState.Released);
             }
 
-			cursorSampler.End();
+            cursorSampler.End();
         }
 
         private void pointersCancelledHandler(object sender, PointerEventArgs e)

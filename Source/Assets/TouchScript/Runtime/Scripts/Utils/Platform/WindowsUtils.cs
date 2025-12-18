@@ -20,17 +20,25 @@ namespace TouchScript.Utils.Platform
     {
         public const int MONITOR_DEFAULTTONEAREST = 2;
 
-        private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
-        private delegate bool EnumWindowsChildProc(IntPtr hwnd, IntPtr lParam);
+        public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+        public delegate bool EnumWindowsChildProc(IntPtr hWnd, IntPtr lParam);
 
         /// <summary>
-        /// Retrieves the native monitor resolution.
+        /// Retrieves the native monitor resolution where the active window is.
         /// </summary>
         /// <param name="width">Output width.</param>
         /// <param name="height">Output height.</param>
-        public static void GetNativeMonitorResolution(out int width, out int height)
+        public static void GetNativeMonitorResolution(out int width, out int height) => GetNativeMonitorResolution(GetActiveWindow(), out width, out height);
+
+        /// <summary>
+        /// Retrieves the native monitor resolution where <paramref name="hWnd"/> is.
+        /// </summary>
+        /// <param name="hWnd"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        public static void GetNativeMonitorResolution(IntPtr hWnd, out int width, out int height)
         {
-            var monitor = MonitorFromWindow(GetActiveWindow(), MONITOR_DEFAULTTONEAREST);
+            var monitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
             var monitorInfo = new MONITORINFO();
             monitorInfo.cbSize = Marshal.SizeOf(monitorInfo);
             if (!GetMonitorInfo(monitor, ref monitorInfo))
@@ -46,28 +54,28 @@ namespace TouchScript.Utils.Platform
         }
 
         /// <summary>
-        /// Retrieves all the top windows of a process by its PID: <paramref name="processId"/>
+        /// Retrieves all the root windows of a process by its PID: <paramref name="processId"/>
         /// </summary>
         /// <param name="processId"></param>
         /// <returns></returns>
-        public static List<IntPtr> GetTopWindowHandlesForProcess(int processId)
+        public static List<IntPtr> GetRootWindowHandlesForProcess(int processId)
         {
-            var topWindowHandles = new List<IntPtr>();
+            var rootWindowHandles = new List<IntPtr>();
 
-            EnumWindows((topWindowHandle, lParam) =>
+            EnumWindows((rootWindowHandle, lParam) =>
             {
-                GetWindowThreadProcessId(topWindowHandle, out var windowProcessId);
+                GetWindowThreadProcessId(rootWindowHandle, out var windowProcessId);
                 if (windowProcessId == processId)
                 {
-                    topWindowHandles.Add(topWindowHandle);
+                    rootWindowHandles.Add(rootWindowHandle);
                 }
 
                 return true;
             }, IntPtr.Zero);
 
-            return topWindowHandles;
+            return rootWindowHandles;
         }
-        
+
         /// <summary>
         /// Retrieves all the direct children of a window with pointer: <paramref name="parentWindowHandle"/>
         /// </summary>
@@ -88,24 +96,24 @@ namespace TouchScript.Utils.Platform
         }
 
         /// <summary>
-        /// Retrieves all the top windows of the Unity app by its process PID: <paramref name="processId"/>.<br/>
+        /// Retrieves all the root windows of the Unity app by its process PID: <paramref name="processId"/>.<br/>
         /// It should return: one main window and <c>n</c> side windows, one for each <c>Display.Activate</c>
         /// </summary>
         /// <param name="processId"></param>
         /// <returns></returns>
         public static List<IntPtr> GetMainWindowHandlesForBuildProcess(int processId)
         {
-            var topWindowHandles = GetTopWindowHandlesForProcess(processId);
+            var rootWindowHandles = GetRootWindowHandlesForProcess(processId);
             List<IntPtr> unityWndClassHandles = new();
 
             StringBuilder className = null;
-            for(var i = 0; i < topWindowHandles.Count; i++)
+            for (var i = 0; i < rootWindowHandles.Count; i++)
             {
                 className = new StringBuilder(256);
-                if (GetClassName(topWindowHandles[i], className, className.Capacity) != 0
+                if (GetClassName(rootWindowHandles[i], className, className.Capacity) != 0
                     && className.ToString() == "UnityWndClass")
                 {
-                    unityWndClassHandles.Add(topWindowHandles[i]);
+                    unityWndClassHandles.Add(rootWindowHandles[i]);
                 }
             }
 
@@ -120,16 +128,16 @@ namespace TouchScript.Utils.Platform
         /// <returns></returns>
         public static List<IntPtr> GetGameWindowHandlesForEditorProcess(int processId)
         {
-            var topWindowHandles = GetTopWindowHandlesForProcess(processId);
+            var rootWindowHandles = GetRootWindowHandlesForProcess(processId);
             List<IntPtr> unityContainerWndClassHandles = new();
 
             StringBuilder className;
-            for (var i = 0; i < topWindowHandles.Count; i++)
+            for (var i = 0; i < rootWindowHandles.Count; i++)
             {
                 className = new StringBuilder(256);
-                if (GetClassName(topWindowHandles[i], className, className.Capacity) != 0 && className.ToString() == "UnityContainerWndClass")
+                if (GetClassName(rootWindowHandles[i], className, className.Capacity) != 0 && className.ToString() == "UnityContainerWndClass")
                 {
-                    unityContainerWndClassHandles.Add(topWindowHandles[i]);
+                    unityContainerWndClassHandles.Add(rootWindowHandles[i]);
                 }
             }
 
@@ -137,7 +145,7 @@ namespace TouchScript.Utils.Platform
             for (var i = 0; i < unityContainerWndClassHandles.Count; i++)
             {
                 var childWindowHandles = GetChildWindowHandlesForProcess(unityContainerWndClassHandles[i]);
-                for(var j = 0; j < childWindowHandles.Count; j++)
+                for (var j = 0; j < childWindowHandles.Count; j++)
                 {
                     className = new StringBuilder(256);
                     var length = GetWindowTextLength(childWindowHandles[j]);
@@ -226,29 +234,29 @@ namespace TouchScript.Utils.Platform
         public enum Tablet
         {
             /// <summary>
-            /// disables press and hold (right-click) gesture
+            /// Disables press and hold (right-click) gesture
             /// </summary>
-            TABLET_DISABLE_PRESSANDHOLD        = 0x00000001,
+            TABLET_DISABLE_PRESSANDHOLD = 0x00000001,
             /// <summary>
-            /// disables UI feedback on pen up (waves)
+            /// Disables UI feedback on pen up (waves)
             /// </summary>
-            TABLET_DISABLE_PENTAPFEEDBACK      = 0x00000008,
+            TABLET_DISABLE_PENTAPFEEDBACK = 0x00000008,
             /// <summary>
-            /// disables UI feedback on pen button down (circle)
+            /// Disables UI feedback on pen button down (circle)
             /// </summary>
-            TABLET_DISABLE_PENBARRELFEEDBACK   = 0x00000010,
-            TABLET_DISABLE_TOUCHUIFORCEON      = 0x00000100,
-            TABLET_DISABLE_TOUCHUIFORCEOFF     = 0x00000200,
-            TABLET_DISABLE_TOUCHSWITCH         = 0x00008000,
+            TABLET_DISABLE_PENBARRELFEEDBACK = 0x00000010,
+            TABLET_DISABLE_TOUCHUIFORCEON = 0x00000100,
+            TABLET_DISABLE_TOUCHUIFORCEOFF = 0x00000200,
+            TABLET_DISABLE_TOUCHSWITCH = 0x00008000,
             /// <summary>
-            /// disables pen flicks (back, forward, drag down, drag up)
+            /// Disables pen flicks (back, forward, drag down, drag up)
             /// </summary>
-            TABLET_DISABLE_FLICKS              = 0x00010000,
-            TABLET_ENABLE_FLICKSONCONTEXT      = 0x00020000,
-            TABLET_ENABLE_FLICKLEARNINGMODE    = 0x00040000,
-            TABLET_DISABLE_SMOOTHSCROLLING     = 0x00080000,
-            TABLET_DISABLE_FLICKFALLBACKKEYS   = 0x00100000,
-            TABLET_ENABLE_MULTITOUCHDATA       = 0x01000000
+            TABLET_DISABLE_FLICKS = 0x00010000,
+            TABLET_ENABLE_FLICKSONCONTEXT = 0x00020000,
+            TABLET_ENABLE_FLICKLEARNINGMODE = 0x00040000,
+            TABLET_DISABLE_SMOOTHSCROLLING = 0x00080000,
+            TABLET_DISABLE_FLICKFALLBACKKEYS = 0x00100000,
+            TABLET_ENABLE_MULTITOUCHDATA = 0x01000000
         }
 
         [DllImport("user32.dll", SetLastError = true)]
@@ -261,9 +269,11 @@ namespace TouchScript.Utils.Platform
         public static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
 
         [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
 
         [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool EnumChildWindows(IntPtr hWndParent, EnumWindowsChildProc lpEnumFunc, IntPtr lParam);
 
         [DllImport("user32.dll", SetLastError = true)]
@@ -271,19 +281,19 @@ namespace TouchScript.Utils.Platform
 
         [DllImport("shell32.dll", SetLastError = true)]
         [SuppressUnmanagedCodeSecurity]
-        public static extern int SHGetPropertyStoreForWindow(IntPtr hwnd, ref Guid riid, out IPropertyStore ppv);
+        public static extern int SHGetPropertyStoreForWindow(IntPtr hWnd, ref Guid riid, out IPropertyStore ppv);
 
         [DllImport("user32.dll", SetLastError = true)]
-        public static extern bool SetWindowFeedbackSetting(IntPtr hwnd, uint feedback, uint dwFlags, uint size, IntPtr config);
+        public static extern bool SetWindowFeedbackSetting(IntPtr hWnd, uint feedback, uint dwFlags, uint size, IntPtr config);
 
         [DllImport("user32.dll", SetLastError = true)]
-        public static extern bool GetWindowFeedbackSetting(IntPtr hwnd, uint feedback, uint dwFlags, ref uint size, IntPtr config);
+        public static extern bool GetWindowFeedbackSetting(IntPtr hWnd, uint feedback, uint dwFlags, ref uint size, IntPtr config);
 
         [DllImport("user32.dll", SetLastError = true)]
         public static extern IntPtr GetActiveWindow();
 
         [DllImport("user32.dll", SetLastError = true)]
-        public static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint dwFlags);
+        public static extern IntPtr MonitorFromWindow(IntPtr hWnd, uint dwFlags);
 
         [DllImport("user32.dll", SetLastError = true)]
         public static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);

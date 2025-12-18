@@ -179,12 +179,12 @@ namespace TouchScript.Core
             // For every window of the current process, we check if it is of the unity window class, and if so
             // add it to list of unity windows
             var classNameBuilder = new StringBuilder(33);
-            var windows = WindowsUtilsEx.GetRootWindowsOfProcess(Process.GetCurrentProcess().Id);
+            var windows = WindowsUtils.GetRootWindowHandlesForProcess(Process.GetCurrentProcess().Id);
             
             foreach (var window in windows)
             {
                 classNameBuilder.Clear();
-                WindowsUtilsEx.GetClassName(window, classNameBuilder, 33);
+                WindowsUtils.GetClassName(window, classNameBuilder, 33);
 
                 var className = classNameBuilder.ToString();
                 if (className != unityWindowClassName)

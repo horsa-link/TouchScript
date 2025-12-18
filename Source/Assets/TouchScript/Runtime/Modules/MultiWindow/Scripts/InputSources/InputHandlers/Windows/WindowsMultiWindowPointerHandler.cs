@@ -114,7 +114,7 @@ namespace TouchScript.InputSources.InputHandlers
         
         protected override void setScaling()
         {
-            WindowsUtilsEx.GetNativeMonitorResolution(hWindow, out var width, out var height);
+            WindowsUtils.GetNativeMonitorResolution(hWindow, out var width, out var height);
             pointerHandler.SetDisplayParams(messageCallback, width, height, 0, 0, 1, 1);
         }
 

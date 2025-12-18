@@ -153,7 +153,7 @@ namespace TouchScript.InputSources
 
 #pragma warning disable CS0414
 
-		[SerializeField]
+        [SerializeField]
         [HideInInspector]
         private bool generalProps; // Used in the custom inspector
 
@@ -161,13 +161,13 @@ namespace TouchScript.InputSources
         [HideInInspector]
         private bool windowsProps; // Used in the custom inspector
 
-		[SerializeField]
-		[HideInInspector]
-		private bool webglProps; // Used in the custom inspector
+        [SerializeField]
+        [HideInInspector]
+        private bool webglProps; // Used in the custom inspector
 
 #pragma warning restore CS0414
 
-		[SerializeField]
+        [SerializeField]
         private Windows8APIType windows8API = Windows8APIType.Windows8;
 
         [SerializeField]
@@ -372,11 +372,11 @@ namespace TouchScript.InputSources
             base.OnDisable();
         }
 
-		[ContextMenu("Basic Editor")]
-		private void switchToBasicEditor()
-		{
-			basicEditor = true;
-		}
+        [ContextMenu("Basic Editor")]
+        private void switchToBasicEditor()
+        {
+            basicEditor = true;
+        }
 
         /// <inheritdoc />
         protected override void updateCoordinatesRemapper(ICoordinatesRemapper remapper)
