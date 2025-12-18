@@ -268,8 +268,8 @@ namespace TouchScript.InputSources.InputHandlers
             }
 
             var windows8PointerHandler = new Windows8MultiWindowPointerHandler(targetDisplay, window, WindowProperties, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer);
-            windows8PointerHandler.UpdateMouse(enableMouse, enableMouseInPointer);
             pointerHandler = windows8PointerHandler;
+            windows8PointerHandler.UpdateMouse(enableMouse, enableMouseInPointer);
 
             UnityConsoleLogger.Log($"Initialized Windows pointer input for display {targetDisplay}.");
         }

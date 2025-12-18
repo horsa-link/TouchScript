@@ -35,15 +35,7 @@ namespace TouchScript.InputSources.InputHandlers
 
         public WindowProperties WindowProperties
         {
-            set
-            {
-#if !UNITY_EDITOR
-                if (TouchManager.Instance is MonoBehaviour touchManagerGo)
-                {
-                    touchManagerGo.StartCoroutine(updateWindowCo(value));
-                }
-#endif
-            }
+            set { UpdateWindow(value); }
         }
 
         private readonly IntPtr hWindow;
@@ -70,10 +62,7 @@ namespace TouchScript.InputSources.InputHandlers
         }
 
         /// <inheritdoc />
-        public override void UpdateWindow()
-        {
-            WindowProperties = nativeWindowHandler.windowProperties;
-        }
+        public override void UpdateWindow() => UpdateWindow(nativeWindowHandler.windowProperties);
 
         /// <inheritdoc />
         public override bool CancelPointer(Pointer pointer, bool shouldReturn)
@@ -132,6 +121,16 @@ namespace TouchScript.InputSources.InputHandlers
         #endregion
         
         #region Private functions
+
+        private void UpdateWindow(WindowProperties windowProperties)
+        {
+#if !UNITY_EDITOR
+            if (TouchManager.Instance is MonoBehaviour touchManagerGo)
+            {
+                touchManagerGo.StartCoroutine(updateWindowCo(windowProperties));
+            }
+#endif
+        }
 
         private IEnumerator updateWindowCo(WindowProperties windowProperties)
         {
