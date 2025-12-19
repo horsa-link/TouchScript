@@ -229,7 +229,12 @@ namespace TouchScript.Behaviors.Cursors
 
         private void updateCursorSize()
         {
-            if (useDPI) cursorPixelSize = (uint) (cursorSize * TouchManager.Instance.DotsPerCentimeter);
+            if (useDPI)
+            {
+                // we need the cursor to be the same size in every display,
+                // so we force it to calculate its size based on 100% scaling
+                cursorPixelSize = (uint)(cursorSize * TouchManager.CM_TO_INCH * 96);
+            }
         }
 
         #endregion
