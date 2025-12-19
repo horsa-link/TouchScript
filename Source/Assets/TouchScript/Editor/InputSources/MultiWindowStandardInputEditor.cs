@@ -12,14 +12,14 @@ namespace TouchScript.Editor.InputSources
     {
         private enum TargetDisplays
         {
-            Display0 = 0,
-            Display1 = 1,
-            Display2 = 2,
-            Display3 = 3,
-            Display4 = 4,
-            Display5 = 5,
-            Display6 = 6,
-            Display7 = 7,
+            Display1 = 0,
+            Display2 = 1,
+            Display3 = 2,
+            Display4 = 3,
+            Display5 = 4,
+            Display6 = 5,
+            Display7 = 6,
+            Display8 = 7,
         }
 
         public static readonly GUIContent TEXT_GENERAL_HEADER = new GUIContent("General", "General settings.");
