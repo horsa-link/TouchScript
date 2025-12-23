@@ -50,7 +50,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             this.hWindow = hwnd;
             this.windowProperties = windowProperties;
 
-            defaultWindowProperties = WindowProperties.Ignore; //FIXME: GetDefaultWindowProperties(hWindow);
+            defaultWindowProperties = WindowProperties.Ignore; // FIXME: GetDefaultWindowProperties(hWindow);
         }
 
         public void ResetWindowProperties() { }         //FIXME: => ApplyWindowProperties(hWindow, ~windowProperties & WindowProperties.All);
@@ -122,9 +122,9 @@ namespace TouchScript.InputSources.InputHandlers.Interop
 
         private void ApplyWindowProperties(IntPtr hwnd, WindowProperties windowProperties)
         {
-            UnityConsoleLogger.Log(
-                $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
-                $"*** Start {nameof(ApplyWindowProperties)} ***");
+            //UnityConsoleLogger.Log(
+            //    $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
+            //    $"*** Start {nameof(ApplyWindowProperties)} ***");
 
             enableTap(hwnd, windowProperties.HasFlag(WindowProperties.Tap));
 
@@ -138,21 +138,24 @@ namespace TouchScript.InputSources.InputHandlers.Interop
 
             enableEdgeGestures(hwnd, windowProperties.HasFlag(WindowProperties.EdgeGestures));
 
-            UnityConsoleLogger.Log(
-                $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
-                $"*** End {nameof(ApplyWindowProperties)} ***");
+            //UnityConsoleLogger.Log(
+            //    $"[{nameof(NativeWindowHandler)}][0x{hwnd.ToString("X")}] " +
+            //    $"*** End {nameof(ApplyWindowProperties)} ***");
         }
 
-        private void GetDefaultWindowProperties(IntPtr hwnd)
+        private WindowProperties GetDefaultWindowProperties(IntPtr hwnd)
         {
-            foreach (var v in Enum.GetValues(typeof(FeedbackType)))
-            {
-                if ((FeedbackType)v == FeedbackType.FeedbackMax) continue;
-                var res = getWindowFeedbackSetting(hwnd, (FeedbackType)v);
-                UnityConsoleLogger.Log($"{(FeedbackType)v} is {res}");
-            }
-            UnityConsoleLogger.Log($"AreEdgeGestures enabled: {areEdgeGesturesEnabled(hwnd)}");
-            UnityConsoleLogger.Log($"IsPressAndHold enabled: {isPressAndHoldEnabled(hwnd)}");
+            return WindowProperties.Ignore;
+
+            // FIXME: we need to retrieve all the window properties at ctor instant
+            //foreach (var v in Enum.GetValues(typeof(FeedbackType)))
+            //{
+            //    if ((FeedbackType)v == FeedbackType.FeedbackMax) continue;
+            //    var res = getWindowFeedbackSetting(hwnd, (FeedbackType)v);
+            //    UnityConsoleLogger.Log($"{(FeedbackType)v} is {res}");
+            //}
+            //UnityConsoleLogger.Log($"AreEdgeGestures enabled: {areEdgeGesturesEnabled(hwnd)}");
+            //UnityConsoleLogger.Log($"IsPressAndHold enabled: {isPressAndHoldEnabled(hwnd)}");
         }
 
         private void enableTap(IntPtr hwnd, bool enable, bool verify = true)

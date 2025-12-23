@@ -82,7 +82,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\..\Source\Assets\TouchScript\Modules\MultiWindow\Plugins\$(Platform)\</OutDir>
+    <OutDir>..\..\Source\Assets\TouchScript\Runtime\Modules\MultiWindow\Plugins\$(Platform)\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
     <IntDir>$(Configuration)\</IntDir>
     <IgnoreImportLibrary>false</IgnoreImportLibrary>

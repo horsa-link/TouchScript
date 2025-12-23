@@ -6,7 +6,7 @@
 #include "WindowsTouchMultiWindowPointerHandler.h"
 
 const wchar_t* instancePropName = L"__PointerHandler_Prop_Instance__";
-MessageCallback globalMessageCallback = NULL;	// FIXME:
+//MessageCallback globalMessageCallback = NULL;	// FIXME: debug purpose
 
 PointerHandler::PointerHandler()
     : mTargetDisplay(-1)
@@ -69,7 +69,7 @@ Result PointerHandler::initialize(MessageCallback messageCallback, int targetDis
         return R_ERROR_NULL_POINTER;
     }
 
-    globalMessageCallback = messageCallback;	// FIXME:
+    //globalMessageCallback = messageCallback;	// FIXME: debug purpose
     mTargetDisplay = targetDisplay;
     mApi = api;
     mHWnd = hWnd;
@@ -202,10 +202,12 @@ bool PointerHandler::decodeWin8Touches(UINT msg, WPARAM wParam, LPARAM lParam)
     switch (pointerInfo.pointerType)
     {
     case PT_MOUSE:
-        if ((pointerInfo.pointerFlags & POINTER_FLAG_DOWN) != 0)
+        // FIXME: debug purpose
+        /*if ((pointerInfo.pointerFlags & POINTER_FLAG_DOWN) != 0)
         {
             sendMessage(globalMessageCallback, MT_WARNING, "POINTERCALLBACK | PT_MOUSE");
-        }
+        }*/
+
         break;
     case PT_TOUCH:
         POINTER_TOUCH_INFO touchInfo;
@@ -214,10 +216,13 @@ bool PointerHandler::decodeWin8Touches(UINT msg, WPARAM wParam, LPARAM lParam)
         data.mask = touchInfo.touchMask;
         data.rotation = touchInfo.orientation;
         data.pressure = touchInfo.pressure;
-        if ((pointerInfo.pointerFlags & POINTER_FLAG_DOWN) != 0)
+
+        // FIXME: debug purpose
+        /*if ((pointerInfo.pointerFlags & POINTER_FLAG_DOWN) != 0)
         {
             sendMessage(globalMessageCallback, MT_ERROR, "POINTERCALLBACK | PT_TOUCH");
-        }
+        }*/
+
         break;
     case PT_PEN:
         POINTER_PEN_INFO penInfo;
@@ -277,7 +282,7 @@ void PointerHandler::decodeWin7Touches(UINT msg, WPARAM wParam, LPARAM lParam)
     delete[] pInputs;
 }
 
-/*
+/* FIXME: debug purpose
     enableMouse		enableMouseInPointer
         0					0				= return 0
         0					1				= return 0
@@ -291,7 +296,9 @@ LRESULT CALLBACK PointerHandler::wndProc8(HWND hWnd, UINT msg, WPARAM wParam, LP
     switch (msg)
     {
     case WM_TOUCH:
-        handler->sendMessage(globalMessageCallback, MT_INFO, "WM_TOUCH");
+        // FIXME: debug purpose
+        //handler->sendMessage(globalMessageCallback, MT_INFO, "WM_TOUCH");
+
         CloseTouchInputHandle((HTOUCHINPUT)lParam);
         break;
     case WM_POINTERENTER:
@@ -304,18 +311,22 @@ LRESULT CALLBACK PointerHandler::wndProc8(HWND hWnd, UINT msg, WPARAM wParam, LP
             && handler->mEnableMouse 
             && !handler->mEnableMouseInPointer)
         {
-            if (msg == WM_POINTERDOWN)
+            // FIXME: debug purpose
+            /*if (msg == WM_POINTERDOWN)
             {
                 handler->sendMessage(globalMessageCallback, MT_ERROR, "WNDPROC | WM_POINTERDOWN");
-            }
+            }*/
+
             return CallWindowProc((WNDPROC)handler->mPreviousWndProc, hWnd, msg, wParam, lParam);
         }
         break;
     default:
-        if (msg == WM_LBUTTONDOWN)
+        // FIXME: debug purpose
+        /*if (msg == WM_LBUTTONDOWN)
         {
             handler->sendMessage(globalMessageCallback, MT_WARNING, "WNDPROC | WM_LBUTTONDOWN");
-        }
+        }*/
+
         return CallWindowProc((WNDPROC)handler->mPreviousWndProc, hWnd, msg, wParam, lParam);
     }
 
