@@ -1,9 +1,9 @@
 ﻿#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX) && !UNITY_EDITOR
 using System;
 #endif
-using System;
 using TouchScript.Core;
 using TouchScript.Debugging.Loggers;
+using TouchScript.InputSources.InputHandlers.Interop;
 using TouchScript.Pointers;
 using TouchScript.Utils.Attributes;
 using UnityEngine;
@@ -17,6 +17,26 @@ namespace TouchScript.InputSources.InputHandlers
     /// </summary>
     public class MultiWindowStandardInput : InputSource, IMultiWindowInputHandler
     {
+        public enum MouseProperties
+        {
+            /// <summary>
+            /// Disable mouse handling
+            /// </summary>
+            Disable,
+            /// <summary>
+            /// Enable mouse handling as standalone input module
+            /// </summary>
+            Enable,
+            /// <summary>
+            /// Enable mouse handling as standalone input module and emulation of a second pointer
+            /// </summary>
+            EnableAndEmulateSecondPointer,
+            /// <summary>
+            /// Enable mouse handling as touch input module
+            /// </summary>
+            EnableAsTouchPointer,
+        }
+
 #if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX) && !UNITY_EDITOR
         private static readonly Version WIN8_VERSION = new Version(6, 2, 0, 0);
 #endif
@@ -33,55 +53,54 @@ namespace TouchScript.InputSources.InputHandlers
 #endif
             }
         }
-        
-        /// <summary>
-        /// Use emulated second mouse pointer with ALT or not.
-        /// </summary>
-        public bool EmulateSecondMousePointer
+
+        public WindowProperties WindowProperties
         {
-            get => emulateSecondMousePointer;
+            get { return windowProperties; }
             set
             {
-                emulateSecondMousePointer = value;
-                if (mouseHandler != null) mouseHandler.EmulateSecondMousePointer = value;
+                windowProperties = value;
+#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+                if (pointerHandler is WindowsMultiWindowPointerHandler pHandler) pHandler.WindowProperties = value;
+#endif
+            }
+        }
+
+        /// <summary>
+        /// Indicates if and how processing mouse events
+        /// </summary>
+        public MouseProperties MouseProperty
+        {
+            get { return mouseProperty; }
+            set
+            {
+                mouseProperty = value;
+                SetMouse(mouseProperty);
             }
         }
 
         [SerializeField, Min(0)] private int targetDisplay;
-        [ToggleLeft, SerializeField] private bool emulateSecondMousePointer = true;
-        
+        [ToggleLeft, SerializeField] private WindowProperties windowProperties = WindowProperties.Ignore;
+        [SerializeField] private MouseProperties mouseProperty;
+
 #pragma warning disable CS0414
 
         [SerializeField, HideInInspector] private bool generalProps; // Used in the custom inspector
         [SerializeField, HideInInspector] private bool windowsProps; // Used in the custom inspector
-        
+
 #pragma warning restore CS0414
-        
+
         private MultiWindowManagerInstance multiWindowManager;
         private MultiWindowMouseHandler mouseHandler;
 #if !UNITY_EDITOR
         private MultiWindowPointerHandler pointerHandler;
 #endif
-        [SerializeField]
-        [ToggleLeft]
-        private bool windowsGesturesManagement = true;
-        public bool WindowsGesturesManagement
-        {
-            get { return windowsGesturesManagement; }
-            set
-            {
-                windowsGesturesManagement = value;
-#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
-                if (pointerHandler != null) pointerHandler.WindowsGesturesManagement = value;
-#endif
-            }
-        }
 
         /// <inheritdoc />
         protected override void OnEnable()
         {
             base.OnEnable();
-            
+
             multiWindowManager = MultiWindowManagerInstance.Instance;
             if (multiWindowManager.ShouldActivateDisplays)
             {
@@ -93,7 +112,7 @@ namespace TouchScript.InputSources.InputHandlers
                     if (!display.active)
                     {
                         // TODO Display activation settings?
-                        
+
                         Display.displays[targetDisplay].Activate();
                         multiWindowManager.OnDisplayActivated(targetDisplay);
                     }
@@ -110,10 +129,10 @@ namespace TouchScript.InputSources.InputHandlers
         protected override void OnDisable()
         {
             DoDisable();
-            
+
             base.OnDisable();
         }
-        
+
         [ContextMenu("Basic Editor")]
         private void SwitchToBasicEditor()
         {
@@ -122,7 +141,7 @@ namespace TouchScript.InputSources.InputHandlers
 
         public void Activate()
         {
-            
+
         }
 
         public void UpdateInputHandlers()
@@ -130,11 +149,11 @@ namespace TouchScript.InputSources.InputHandlers
             DoDisable();
             DoEnable();
         }
-        
+
         public override bool UpdateInput()
         {
             if (base.UpdateInput()) return true;
-            
+
             var handled = false;
 #if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX) && !UNITY_EDITOR
             if (pointerHandler != null)
@@ -147,10 +166,10 @@ namespace TouchScript.InputSources.InputHandlers
                 if (handled) mouseHandler.CancelMousePointer();
                 else handled = mouseHandler.UpdateInput();
             }
-            
+
             return handled;
         }
-        
+
         /// <inheritdoc />
         public override void UpdateResolution()
         {
@@ -159,27 +178,37 @@ namespace TouchScript.InputSources.InputHandlers
 #endif
             mouseHandler?.UpdateResolution();
         }
-        
+
+        /// <inheritdoc />
+        public override void UpdateWindow()
+        {
+            base.UpdateWindow();
+#if !UNITY_EDITOR
+            pointerHandler?.UpdateWindow();
+#endif
+            mouseHandler?.UpdateWindow();
+        }
+
         /// <inheritdoc />
         public override bool CancelPointer(Pointer pointer, bool shouldReturn)
         {
             base.CancelPointer(pointer, shouldReturn);
-            
+
             var handled = false;
-            
+
 #if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX) && !UNITY_EDITOR
             if (pointerHandler != null) handled = pointerHandler.CancelPointer(pointer, shouldReturn);
 #endif
             if (mouseHandler != null && !handled) handled = mouseHandler.CancelPointer(pointer, shouldReturn);
-            
+
             return handled;
         }
-        
+
         /// <inheritdoc />
         protected override void updateCoordinatesRemapper(ICoordinatesRemapper remapper)
         {
             base.updateCoordinatesRemapper(remapper);
-            
+
             if (mouseHandler != null) mouseHandler.CoordinatesRemapper = remapper;
 #if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX) && !UNITY_EDITOR
             if (pointerHandler != null) pointerHandler.CoordinatesRemapper = remapper;
@@ -189,87 +218,33 @@ namespace TouchScript.InputSources.InputHandlers
         private void DoEnable()
         {
 #if UNITY_EDITOR
-            EnableMouse();
+            SetMouse(MouseProperty);
 #else
 # if UNITY_STANDALONE_WIN
             if (Environment.OSVersion.Platform == PlatformID.Win32NT &&
                 Environment.OSVersion.Version >= WIN8_VERSION)
             {
                 // Windows 8+
-                EnableTouch();
-                EnableMouse();
+                EnableWindows8Touch(
+                    targetDisplay,
+                    MouseProperty == MouseProperties.Enable || MouseProperty == MouseProperties.EnableAndEmulateSecondPointer || MouseProperty == MouseProperties.EnableAsTouchPointer,
+                    MouseProperty == MouseProperties.EnableAsTouchPointer
+                );
+                SetMouse(MouseProperty);
             }
             else
             {
                 // Other windows
-                EnableMouse();
+                SetMouse(MouseProperty);
             }
 # elif UNITY_STANDALONE_LINUX
-            EnableTouch();
+            EnableX11Touch();
 # else
-            EnableMouse();
-# endif
+            SetMouse(MouseProperty);
 #endif
-            
+#endif
+
             if (CoordinatesRemapper != null) updateCoordinatesRemapper(CoordinatesRemapper);
-        }
-        
-        private void EnableMouse()
-        {
-            mouseHandler = new MultiWindowMouseHandler(addPointer, updatePointer, pressPointer, releasePointer, removePointer,
-                cancelPointer);
-            mouseHandler.EmulateSecondMousePointer = emulateSecondMousePointer;
-            mouseHandler.TargetDisplay = TargetDisplay;
-            
-            UnityConsoleLogger.Log($"Initialized Unity mouse input for display {TargetDisplay + 1}.");
-        }
-
-#if !UNITY_EDITOR
-
-# if UNITY_STANDALONE_WIN
-        private void EnableTouch()
-        {
-            var window = multiWindowManager.GetWindowHandle(targetDisplay);
-            if (window == IntPtr.Zero)
-            {
-                UnityConsoleLogger.LogError($"Failed to initialize Windows pointer input for display {TargetDisplay + 1}.");
-                return;
-            }
-
-            var windows8PointerHandler = new Windows8MultiWindowPointerHandler(TargetDisplay, window, addPointer,
-                updatePointer, pressPointer, releasePointer, removePointer, cancelPointer);
-            windows8PointerHandler.MouseInPointer = false;
-            pointerHandler = windows8PointerHandler;
-
-            UnityConsoleLogger.Log($"Initialized Windows pointer input for display {TargetDisplay + 1}.");
-        }
-
-# elif UNITY_STANDALONE_LINUX
-        private void EnableTouch()
-        {
-            var window = multiWindowManager.GetWindowHandle(targetDisplay);
-            if (window == IntPtr.Zero)
-            {
-                UnityConsoleLogger.LogError($"Failed to initialize X11 pointer input for display {TargetDisplay + 1}.");
-                return;
-            }
-
-            var x11PointerHandler = new X11MultiWindowPointerHandler(TargetDisplay, window, addPointer, updatePointer,
-                pressPointer, releasePointer, removePointer, cancelPointer);
-            pointerHandler = x11PointerHandler;
-
-            UnityConsoleLogger.Log($"Initialized X11 pointer input for display {TargetDisplay + 1}.");
-        }
-# endif
-#endif
-
-        public override void UpdateWindowsInput(IntPtr[] hwnds)
-        {
-            base.UpdateWindowsInput(hwnds);
-            mouseHandler?.UpdateWindowsInput(hwnds);
-#if !UNITY_EDITOR
-            pointerHandler?.UpdateWindowsInput(hwnds);
-#endif
         }
 
         private void DoDisable()
@@ -279,19 +254,42 @@ namespace TouchScript.InputSources.InputHandlers
             DisableTouch();
 #endif
         }
-        
-        private void DisableMouse()
-        {
-            if (mouseHandler != null)
-            {
-                mouseHandler.Dispose();
-                mouseHandler = null;
-                
-                UnityConsoleLogger.Log($"Disposed Unity mouse input for display {TargetDisplay + 1}.");
-            }
-        }
 
-#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX) && !UNITY_EDITOR
+#if !UNITY_EDITOR
+
+#if UNITY_STANDALONE_WIN
+        private void EnableWindows8Touch(int targetDisplay, bool enableMouse, bool enableMouseInPointer)
+        {
+            var window = multiWindowManager.GetWindowHandle(targetDisplay);
+            if (window == IntPtr.Zero)
+            {
+                UnityConsoleLogger.LogError($"Failed to initialize Windows pointer input for display {targetDisplay}.");
+                return;
+            }
+
+            var windows8PointerHandler = new Windows8MultiWindowPointerHandler(targetDisplay, window, WindowProperties, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer);
+            pointerHandler = windows8PointerHandler;
+            windows8PointerHandler.UpdateMouse(enableMouse, enableMouseInPointer);
+
+            UnityConsoleLogger.Log($"Initialized Windows pointer input for display {targetDisplay}.");
+        }
+#elif UNITY_STANDALONE_LINUX
+        private void EnableX11Touch()
+        {
+            var window = multiWindowManager.GetWindowHandle(targetDisplay);
+            if (window == IntPtr.Zero)
+            {
+                UnityConsoleLogger.LogError($"Failed to initialize X11 pointer input for display {TargetDisplay}.");
+                return;
+            }
+
+            var x11PointerHandler = new X11MultiWindowPointerHandler(TargetDisplay, window, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer);
+            pointerHandler = x11PointerHandler;
+
+            UnityConsoleLogger.Log($"Initialized X11 pointer input for display {TargetDisplay}.");
+        }
+#endif
+
         private void DisableTouch()
         {
             if (pointerHandler != null)
@@ -299,9 +297,69 @@ namespace TouchScript.InputSources.InputHandlers
                 pointerHandler.Dispose();
                 pointerHandler = null;
 
-                UnityConsoleLogger.Log($"Disposed pointer input for display {TargetDisplay + 1}.");
+                UnityConsoleLogger.Log($"Disposed pointer input for display {TargetDisplay}.");
             }
         }
 #endif
+
+        #region Mouse
+
+        private void SetMouse(MouseProperties mouseProperties)
+        {
+            if (mouseProperties == MouseProperties.Enable)
+            {
+                EnableMouse(targetDisplay, false);
+#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+                if(pointerHandler is Windows8MultiWindowPointerHandler pHandler) pHandler.UpdateMouse(true, false);
+#endif
+            }
+            else if (mouseProperties == MouseProperties.EnableAndEmulateSecondPointer)
+            {
+                EnableMouse(targetDisplay, true);
+#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+                if(pointerHandler is Windows8MultiWindowPointerHandler pHandler) pHandler.UpdateMouse(true, false);
+#endif
+            }
+            else if (mouseProperties == MouseProperties.EnableAsTouchPointer)
+            {
+                DisableMouse();
+#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+                if(pointerHandler is Windows8MultiWindowPointerHandler pHandler) pHandler.UpdateMouse(true, true);
+#endif
+            }
+            else
+            {
+                DisableMouse();
+            }
+        }
+
+        private void EnableMouse(int targetDisplay, bool emulateSecondMousePointer)
+        {
+            mouseHandler = new MultiWindowMouseHandler(addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer);
+            mouseHandler.TargetDisplay = targetDisplay;
+            mouseHandler.EmulateSecondMousePointer = emulateSecondMousePointer;
+
+            if (emulateSecondMousePointer)
+            {
+                UnityConsoleLogger.Log($"Initialized Unity mouse input for display {targetDisplay} with second mouse pointer emulation.");
+            }
+            else
+            {
+                UnityConsoleLogger.Log($"Initialized Unity mouse input for display {targetDisplay}.");
+            }
+        }
+
+        private void DisableMouse()
+        {
+            if (mouseHandler != null)
+            {
+                mouseHandler.Dispose();
+                mouseHandler = null;
+
+                UnityConsoleLogger.Log($"Disposed Unity mouse input for display {TargetDisplay}.");
+            }
+        }
+
+        #endregion
     }
 }

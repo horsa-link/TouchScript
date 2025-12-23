@@ -31,25 +31,6 @@ namespace TouchScript.InputSources.InputHandlers
             get { return pointersNum > 0; }
         }
 
-        public bool WindowsGesturesManagement
-        {
-            get { return windowsGesturesManagement; }
-            set
-            {
-                windowHandles.Clear();
-                windowsGesturesManagement = value;
-            }
-        }
-
-        #endregion
-
-        #region Protected variables
-
-        /// <summary>
-        /// Maps the window handle to its pressAndHoldAtomID property
-        /// </summary>
-        protected List<(IntPtr, ushort)> windowHandles = new();
-
         #endregion
 
         #region Private variables
@@ -67,8 +48,6 @@ namespace TouchScript.InputSources.InputHandlers
         private int pointersNum;
 
 		private CustomSampler updateSampler;
-
-        private bool windowsGesturesManagement = true;
 
         #endregion
 
@@ -192,6 +171,9 @@ namespace TouchScript.InputSources.InputHandlers
         public void UpdateResolution() {}
 
         /// <inheritdoc />
+        public virtual void UpdateWindow() {}
+
+        /// <inheritdoc />
         public bool CancelPointer(Pointer pointer, bool shouldReturn)
         {
             var touch = pointer as TouchPointer;
@@ -216,8 +198,6 @@ namespace TouchScript.InputSources.InputHandlers
             return false;
         }
 
-        public virtual void UpdateWindowsInput(IntPtr[] hwnds) => WindowsPointerHandler.UpdateWindowsInput(hwnds, windowHandles);
-
         /// <summary>
         /// Releases resources.
         /// </summary>
@@ -228,10 +208,6 @@ namespace TouchScript.InputSources.InputHandlers
                 if (touchState.Value.Phase != TouchPhase.Canceled) internalCancelPointer(touchState.Value.Pointer);
             }
             systemToInternalId.Clear();
-
-#if !UNITY_EDITOR
-            foreach (var h in windowHandles) WindowsPointerHandler.ResetTouchSettingToWindow(h.Item1, h.Item2);
-#endif
         }
 
         #endregion

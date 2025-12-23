@@ -25,6 +25,8 @@ typedef enum
 #define WM_POINTERUP				0x0247
 #define WM_POINTERCAPTURECHANGED    0x024C
 #define POINTER_CANCELLED			0x1000
+#define WM_MOUSEMOVE                0x0200
+#define WM_LBUTTONDOWN              0x0201
 
 #define GET_POINTERID_WPARAM(wParam)	(LOWORD(wParam))
 

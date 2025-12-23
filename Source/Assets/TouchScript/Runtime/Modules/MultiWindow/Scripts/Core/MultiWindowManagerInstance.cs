@@ -4,14 +4,12 @@ using System.Collections.Generic;
 using TouchScript.InputSources.InputHandlers;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TouchScript.Debugging.Loggers;
 #if !UNITY_EDITOR
 using System.Diagnostics;
 using System.Text;
-using TouchScript.Debugging.Loggers;
-
 # if UNITY_STANDALONE_WIN
 using TouchScript.Utils.Platform;
-using Debug = UnityEngine.Debug;
 # endif
 #endif
 
@@ -160,7 +158,7 @@ namespace TouchScript.Core
                 {
                     targetDisplayWindowHandles.Add(targetDisplay, windowHandle);
 
-                    UnityConsoleLogger.Log($"Registered window handle for display {targetDisplay + 1}.");
+                    UnityConsoleLogger.Log($"Registered window handle 0x{windowHandle.ToString("X")} for display {targetDisplay}.");
                     
                     return windowHandle;
                 }
@@ -181,12 +179,12 @@ namespace TouchScript.Core
             // For every window of the current process, we check if it is of the unity window class, and if so
             // add it to list of unity windows
             var classNameBuilder = new StringBuilder(33);
-            var windows = WindowsUtilsEx.GetRootWindowsOfProcess(Process.GetCurrentProcess().Id);
+            var windows = WindowsUtils.GetRootWindowHandlesForProcess(Process.GetCurrentProcess().Id);
             
             foreach (var window in windows)
             {
                 classNameBuilder.Clear();
-                WindowsUtilsEx.GetClassName(window, classNameBuilder, 33);
+                WindowsUtils.GetClassName(window, classNameBuilder, 33);
 
                 var className = classNameBuilder.ToString();
                 if (className != unityWindowClassName)
@@ -229,8 +227,8 @@ namespace TouchScript.Core
             var inputs = TouchManager.Instance.Inputs;
             foreach (var input in inputs)
             {
-                if (input is MultiWindowStandardInput multiWindowInput &&
-                    multiWindowInput.isActiveAndEnabled)
+                if (input is MultiWindowStandardInput multiWindowInput 
+                    && multiWindowInput.isActiveAndEnabled)
                 {
                     multiWindowInput.UpdateInputHandlers();
                 }

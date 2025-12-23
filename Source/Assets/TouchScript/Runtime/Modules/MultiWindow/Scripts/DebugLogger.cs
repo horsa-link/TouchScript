@@ -59,7 +59,7 @@ namespace TouchScript.Debugging
             var path = TransformUtils.GetHierarchyPath(pointer.GetPressData().Target);
 
             var inputSource = pointer.InputSource;
-            var targetDisplay = "1";
+            var targetDisplay = "0";
             
             if (inputSource is IMultiWindowInputHandler multiWindowInputHandler)
             {

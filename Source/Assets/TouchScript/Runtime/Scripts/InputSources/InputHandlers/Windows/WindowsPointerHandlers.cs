@@ -9,19 +9,22 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using TouchScript.Debugging.Loggers;
+using TouchScript.InputSources.InputHandlers.Interop;
 using TouchScript.Pointers;
 using TouchScript.Utils;
 using TouchScript.Utils.Platform;
 using UnityEngine;
+using PointerData = TouchScript.InputSources.InputHandlers.Interop.PointerData;
+using PointerEvent = TouchScript.InputSources.InputHandlers.Interop.PointerEvent;
+using PointerType = TouchScript.InputSources.InputHandlers.Interop.PointerType;
 
 namespace TouchScript.InputSources.InputHandlers
 {
     /// <summary>
     /// Windows 8 pointer handling implementation which can be embedded to other (input) classes. Uses WindowsTouch.dll to query native touches with WM_TOUCH or WM_POINTER APIs.
     /// </summary>
-    public class Windows8PointerHandler : WindowsPointerHandler
+    sealed class Windows8PointerHandler : WindowsPointerHandler
     {
         #region Public properties
 
@@ -65,7 +68,7 @@ namespace TouchScript.InputSources.InputHandlers
         #region Constructor
 
         /// <inheritdoc />
-        public Windows8PointerHandler(PointerDelegate addPointer, PointerDelegate updatePointer, PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer, PointerDelegate cancelPointer) : base(addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
+        public Windows8PointerHandler(IntPtr hWindow, WindowProperties windowProperties, PointerDelegate addPointer, PointerDelegate updatePointer, PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer, PointerDelegate cancelPointer) : base(hWindow, windowProperties, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
         {
             mousePool = new ObjectPool<MousePointer>(4, () => new MousePointer(this), null, resetPointer);
             penPool = new ObjectPool<PenPointer>(2, () => new PenPointer(this), null, resetPointer);
@@ -139,10 +142,10 @@ namespace TouchScript.InputSources.InputHandlers
         #endregion
     }
 
-    public class Windows7PointerHandler : WindowsPointerHandler
+    sealed class Windows7PointerHandler : WindowsPointerHandler
     {
         /// <inheritdoc />
-        public Windows7PointerHandler(PointerDelegate addPointer, PointerDelegate updatePointer, PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer, PointerDelegate cancelPointer) : base(addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
+        public Windows7PointerHandler(IntPtr hWindow, WindowProperties windowProperties, PointerDelegate addPointer, PointerDelegate updatePointer, PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer, PointerDelegate cancelPointer) : base(hWindow, windowProperties, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
         {
             init(TOUCH_API.WIN7);
         }
@@ -162,45 +165,23 @@ namespace TouchScript.InputSources.InputHandlers
     /// <summary>
     /// Base class for Windows 8 and Windows 7 input handlers.
     /// </summary>
-    public abstract class WindowsPointerHandler : IInputSource, IDisposable
+    abstract class WindowsPointerHandler : IInputSource, IDisposable
     {
-        #region Consts
-
-        /// <summary>
-        /// Windows constant to turn off press and hold visual effect.
-        /// </summary>
-        public const string PRESS_AND_HOLD_ATOM = "MicrosoftTabletPenServiceProperty";
-
-        /// <summary>
-        /// The method delegate used to pass data from the native DLL.
-        /// </summary>
-        /// <param name="id">Pointer id.</param>
-        /// <param name="evt">Current event.</param>
-        /// <param name="type">Pointer type.</param>
-        /// <param name="position">Pointer position.</param>
-        /// <param name="data">Pointer data.</param>
-        protected delegate void NativePointerDelegate(int id, PointerEvent evt, PointerType type, Vector2 position, PointerData data);
-
-        /// <summary>
-        /// The method delegate used to pass log messages from the native DLL.
-        /// </summary>
-        /// <param name="log">The log message.</param>
-        protected delegate void NativeLog([MarshalAs(UnmanagedType.BStr)] string log);
-
-        #endregion
-
         #region Public properties
 
         /// <inheritdoc />
         public ICoordinatesRemapper CoordinatesRemapper { get; set; }
 
-        public bool WindowsGesturesManagement
+        public WindowProperties WindowProperties
         {
-            get { return windowsGesturesManagement; }
             set
             {
-                windowHandles.Clear();
-                windowsGesturesManagement = value;
+#if !UNITY_EDITOR
+                if (TouchManager.Instance is MonoBehaviour touchManagerGo)
+                {
+                    touchManagerGo.StartCoroutine(updateWindowCo(value));
+                }
+#endif
             }
         }
 
@@ -208,9 +189,10 @@ namespace TouchScript.InputSources.InputHandlers
 
         #region Private variables
 
+        private NativePointerHandler nativePointerHandler;
+        private NativeWindowHandler nativeWindowHandler;
         private NativePointerDelegate nativePointerDelegate;
         private NativeLog nativeLogDelegate;
-        private bool windowsGesturesManagement = true;
 
         protected PointerDelegate addPointer;
         protected PointerDelegate updatePointer;
@@ -219,12 +201,7 @@ namespace TouchScript.InputSources.InputHandlers
         protected PointerDelegate removePointer;
         protected PointerDelegate cancelPointer;
 
-        /// <summary>
-        /// Maps the window handle to its pressAndHoldAtomID property
-        /// </summary>
-        protected List<(IntPtr, ushort)> windowHandles = new();
-        protected IntPtr hMainWindow;
-        protected ushort pressAndHoldAtomID;
+        protected IntPtr hWindow;
         protected Dictionary<int, TouchPointer> winTouchToInternalId = new(10);
 
         protected ObjectPool<TouchPointer> touchPool;
@@ -246,8 +223,9 @@ namespace TouchScript.InputSources.InputHandlers
         /// <param name="releasePointer">A function called when a pointer is lifted off.</param>
         /// <param name="removePointer">A function called when a pointer is removed.</param>
         /// <param name="cancelPointer">A function called when a pointer is cancelled.</param>
-        public WindowsPointerHandler(PointerDelegate addPointer, PointerDelegate updatePointer, PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer, PointerDelegate cancelPointer)
+        public WindowsPointerHandler(IntPtr hWindow, WindowProperties windowProperties, PointerDelegate addPointer, PointerDelegate updatePointer, PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer, PointerDelegate cancelPointer)
         {
+            this.hWindow = hWindow;
             this.addPointer = addPointer;
             this.updatePointer = updatePointer;
             this.pressPointer = pressPointer;
@@ -257,6 +235,9 @@ namespace TouchScript.InputSources.InputHandlers
 
             nativeLogDelegate = nativeLog;
             nativePointerDelegate = nativePointer;
+
+            nativePointerHandler = new NativePointerHandler();
+            nativeWindowHandler = new NativeWindowHandler(this.hWindow, windowProperties);
 
             touchPool = new ObjectPool<TouchPointer>(10, () => new TouchPointer(this), null, resetPointer);
             setScaling();
@@ -277,6 +258,12 @@ namespace TouchScript.InputSources.InputHandlers
         {
             setScaling();
             if (mousePointer != null) TouchManager.Instance.CancelPointer(mousePointer.Id);
+        }
+
+        /// <inheritdoc />
+        public virtual void UpdateWindow()
+        {
+            WindowProperties = nativeWindowHandler.windowProperties;
         }
 
         /// <inheritdoc />
@@ -304,46 +291,6 @@ namespace TouchScript.InputSources.InputHandlers
             return false;
         }
 
-        public virtual void UpdateWindowsInput(IntPtr[] hwnds) => UpdateWindowsInput(hwnds, windowHandles);
-
-        public static void UpdateWindowsInput(IntPtr[] hwnds, List<(IntPtr, ushort)> windowHandles)
-        {
-#if !UNITY_EDITOR
-#pragma warning disable CS4014
-            if (TouchManager.Instance is MonoBehaviour touchManagerGo)
-            {
-                touchManagerGo.StartCoroutine(
-                    setTouchSettingToWindowCo(() =>
-                    {
-                        for (int k = 0; k < windowHandles.Count; k++)
-                        {
-                            ResetTouchSettingToWindow(windowHandles[k].Item1, windowHandles[k].Item2);
-                            windowHandles.Remove(windowHandles[k]);
-                        }
-                        for (int k = 0; k < hwnds.Length; k++)
-                        {
-                            applyTouchSettingToWindow(hwnds[k], out ushort pressAndHoldAtomID);
-                            windowHandles.Add(new(hwnds[k], pressAndHoldAtomID));
-                        }
-                    })
-                );
-#pragma warning restore CS4014
-            }
-#endif
-        }
-
-        public static void ResetTouchSettingToWindow(IntPtr hwnd, ushort pressAndHoldAtomID)
-        {
-            UnityConsoleLogger.Log($"[{nameof(WindowsPointerHandler)}] {nameof(ResetTouchSettingToWindow)}: {hwnd.ToString("X")}");
-
-            enableTap(hwnd);
-            enableDoubleTap(hwnd);
-            enablePressAndTap(hwnd);
-            enableRightTap(hwnd);
-            enablePressAndHold(hwnd, pressAndHoldAtomID);
-            enableEdgeGestures(hwnd);
-        }
-
         /// <summary>
         /// Releases resources.
         /// </summary>
@@ -353,10 +300,12 @@ namespace TouchScript.InputSources.InputHandlers
             winTouchToInternalId.Clear();
 
 #if !UNITY_EDITOR
-            foreach (var h in windowHandles) ResetTouchSettingToWindow(h.Item1, h.Item2);
+            nativeWindowHandler.ResetWindowProperties();
+            nativeWindowHandler = null;
 #endif
 
-            DisposePlugin();
+            nativePointerHandler.Dispose();
+            nativePointerHandler = null;
         }
 
         #endregion
@@ -460,7 +409,8 @@ namespace TouchScript.InputSources.InputHandlers
 
         protected void init(TOUCH_API api)
         {
-            Init(api, nativeLogDelegate, nativePointerDelegate);
+            nativePointerHandler.Initialize(api, nativeLogDelegate, nativePointerDelegate);
+            UpdateWindow();
         }
 
         protected Vector2 remapCoordinates(Vector2 position)
@@ -478,170 +428,27 @@ namespace TouchScript.InputSources.InputHandlers
 
         #region Private functions
 
-        private static void applyTouchSettingToWindow(IntPtr hwnd, out ushort pressAndHoldAtomID)
+        private IEnumerator updateWindowCo(WindowProperties windowProperties)
         {
-            UnityConsoleLogger.Log($"[{nameof(WindowsPointerHandler)}] {nameof(applyTouchSettingToWindow)}: {hwnd.ToString("X")}");
-
-            disableTap(hwnd);
-            disableDoubleTap(hwnd);
-            disablePressAndTap(hwnd);
-            disableRightTap(hwnd);
-            disablePressAndHold(hwnd, out pressAndHoldAtomID);
-            disableEdgeGestures(hwnd);
-        }
-
-        private static void disableTap(IntPtr hwnd)
-        {
-            setWindowFeedbackSetting(hwnd, FeedbackType.FeedbackTouchContactVisualization, false);
-            setWindowFeedbackSetting(hwnd, FeedbackType.FeedbackTouchTap, false);
-        }
-
-        private static void disableDoubleTap(IntPtr hwnd) => setWindowFeedbackSetting(hwnd, FeedbackType.FeedbackTouchDoubleTap, false);
-
-        private static void disablePressAndTap(IntPtr hwnd) => setWindowFeedbackSetting(hwnd, FeedbackType.FeedbackGesturePressAndTap, false);
-
-        private static void disableRightTap(IntPtr hwnd) => setWindowFeedbackSetting(hwnd, FeedbackType.FeedbackTouchRightTap, false);
-
-        private static void disablePressAndHold(IntPtr hwnd, out ushort pressAndHoldAtomID)
-        {
-            // https://msdn.microsoft.com/en-us/library/bb969148(v=vs.85).aspx
-            pressAndHoldAtomID = WindowsUtils.GlobalAddAtom(PRESS_AND_HOLD_ATOM);
-            WindowsUtils.SetProp(hwnd, PRESS_AND_HOLD_ATOM,
-                WindowsUtils.TABLET_DISABLE_PRESSANDHOLD | // disables press and hold (right-click) gesture
-                WindowsUtils.TABLET_DISABLE_PENTAPFEEDBACK | // disables UI feedback on pen up (waves)
-                WindowsUtils.TABLET_DISABLE_PENBARRELFEEDBACK | // disables UI feedback on pen button down (circle)
-                WindowsUtils.TABLET_DISABLE_FLICKS // disables pen flicks (back, forward, drag down, drag up);
-                );
-
-            setWindowFeedbackSetting(hwnd, FeedbackType.FeedbackTouchPressAndHold, false);
-        }
-
-        private static void disableEdgeGestures(IntPtr hwnd)
-        {
-            var hr = WindowsUtils.SHGetPropertyStoreForWindow(hwnd, ref IID_IPropertyStore, out var propStore);
-            if (hr != 0 || propStore == null)
-            {
-                UnityConsoleLogger.LogWarning($"Cannot retrieve the property store for window named \"{nameof(DISABLE_TOUCH_WHEN_FULLSCREEN)}\"");
-                return;
-            }
-
-            var key = new WindowsUtils.PropertyKey { fmtid = DISABLE_TOUCH_WHEN_FULLSCREEN, pid = 2 };
-            var value = new WindowsUtils.PropVariant { vt = VT_BOOL, boolVal = -1 }; // -1 = TRUE, 0 = FALSE
-
-            propStore.SetValue(ref key, ref value);
-            propStore.Commit(); // shouldn't be needed
-
-            Marshal.ReleaseComObject(propStore);
-        }
-
-        private static void enableTap(IntPtr hwnd)
-        {
-            setWindowFeedbackSetting(hwnd, FeedbackType.FeedbackTouchContactVisualization, true);
-            setWindowFeedbackSetting(hwnd, FeedbackType.FeedbackTouchTap, true);
-        }
-
-        private static void enableDoubleTap(IntPtr hwnd) => setWindowFeedbackSetting(hwnd, FeedbackType.FeedbackTouchDoubleTap, true);
-
-        private static void enablePressAndTap(IntPtr hwnd) => setWindowFeedbackSetting(hwnd, FeedbackType.FeedbackGesturePressAndTap, true);
-
-        private static void enableRightTap(IntPtr hwnd) => setWindowFeedbackSetting(hwnd, FeedbackType.FeedbackTouchRightTap, true);
-
-        private static void enablePressAndHold(IntPtr hwnd, ushort pressAndHoldAtomID)
-        {
-            if (pressAndHoldAtomID != 0)
-            {
-                WindowsUtils.RemoveProp(hwnd, PRESS_AND_HOLD_ATOM);
-                WindowsUtils.GlobalDeleteAtom(pressAndHoldAtomID);
-            }
-
-            setWindowFeedbackSetting(hwnd, FeedbackType.FeedbackTouchPressAndHold, true);
-        }
-
-        private static void enableEdgeGestures(IntPtr hwnd)
-        {
-            var hr = WindowsUtils.SHGetPropertyStoreForWindow(hwnd, ref IID_IPropertyStore, out var propStore);
-            if (hr != 0 || propStore == null)
-            {
-                UnityConsoleLogger.LogWarning($"Cannot retrieve the property store for window named \"{nameof(DISABLE_TOUCH_WHEN_FULLSCREEN)}\"");
-                return;
-            }
-
-            var key = new WindowsUtils.PropertyKey { fmtid = DISABLE_TOUCH_WHEN_FULLSCREEN, pid = 2 };
-            var value = new WindowsUtils.PropVariant { vt = VT_EMPTY };
-
-            propStore.SetValue(ref key, ref value);
-            propStore.Commit(); // shouldn't be needed
-
-            Marshal.ReleaseComObject(propStore);
-        }
-
-        private static void setWindowFeedbackSetting(IntPtr hwnd, FeedbackType feedback, bool enable)
-        {
-            var settings = new WindowsUtils.FeedbackTypeSettings { Enable = enable };
-
-            var size = Marshal.SizeOf(settings);
-            var ptr = Marshal.AllocHGlobal(size);
-            Marshal.StructureToPtr(settings, ptr, false);
-
-            var result = WindowsUtils.SetWindowFeedbackSetting(hwnd, (uint)feedback, 0, (uint)size, ptr);
-            if (!result)
-            {
-                UnityConsoleLogger.LogWarning(
-                    $"Cannot change the window feedback setting named {Enum.GetName(typeof(FeedbackType), feedback)}, " +
-                    $"Win32Error: {Marshal.GetLastWin32Error().ToString("X")}");
-            }
-
-            Marshal.FreeHGlobal(ptr);
-        }
-
-        private static IEnumerator setTouchSettingToWindowCo(Action action)
-        {
-            // The purpose is to "consume" the touch input handled by Windows so that it does not
-            // interfere with specific gestures configured by the user in Windows Settings.
-            // In Windows 11, settings related to touch gestures (edge gestures, 3-4 finger gestures)
-            // were introduced which, if enabled, compromise the use of touch apps since these are managed directly by the operating system.
-            // According to Microsoft documentation [https://learn.microsoft.com/en-us/windows/apps/design/input/touch-developer-guide#custom-touch-interactions]
-            // there is no "official" way to solve the problem other than the user disabling these settings.
-            // Nevertheless, an "unofficial" method was found that uses APIs from "shell32.dll" to "simulate" the use of a touch app in a Windows "kiosk" environment.
-            // Specifically, we set the property [https://learn.microsoft.com/en-us/windows/win32/properties/props-system-edgegesture-disabletouchwhenfullscreen]
-            // which disables "Edge Gestures" only for Windows in Fullscreen mode.
-            // As a side effect, this also disables "3-4 finger gestures" only when the Window is in focus and in the Foreground and only after:
-            // - a "focus switch" between the Unity Window and another Window (on the same Display)
-            // - or a mode change of the Unity Window from "Windowed" to "FullscreenWindow"
-            // In the first case, we have the problem that "3-4 finger gestures" are not disabled at app startup even if the Unity Window is in Focus and Foreground,
-            // whereas in the second case, by forcing the FullscreenMode change, we can always apply the side effect to the Unity Window.
-            // Therefore, we use the second case (which can be done programmatically and concerns only the app), keeping in mind that Unity
-            // allows changing FullscreenMode also via the ALT + ENTER key combination and saves the new FullscreenMode value
-            // in the Windows registry at the path "HKEY_CURRENT_USER\Software\[CompanyName]\[ProductName]\Screenmanager Fullscreen mode_<characters>"
-
-            Screen.fullScreen = false;
-            yield return null;
-            Screen.SetResolution(Screen.width - 1, Screen.height - 1, FullScreenMode.Windowed);
-            yield return null;
-
-            action?.Invoke();
-
-            Screen.fullScreen = true;
-            yield return null;
-            Screen.SetResolution(Screen.width, Screen.height, FullScreenMode.FullScreenWindow);
+            yield return nativeWindowHandler.ApplyWindowPropertiesAsync(windowProperties);
 
             setScaling();
         }
 
-        private static void setScaling()
+        private void setScaling()
         {
             var screenWidth = Screen.width;
             var screenHeight = Screen.height;
 
             if (!Screen.fullScreen)
             {
-                SetScreenParams(screenWidth, screenHeight, 0, 0, 1, 1);
+                nativePointerHandler.SettingScreenParams(screenWidth, screenHeight, 0, 0, 1, 1);
                 return;
             }
 
             WindowsUtils.GetNativeMonitorResolution(out var width, out var height);
-            var scale = Mathf.Max(screenWidth / ((float) width), screenHeight / ((float) height));
-            SetScreenParams(screenWidth, screenHeight, (width - screenWidth / scale) * .5f, (height - screenHeight / scale) * .5f, scale, scale);
+            var scale = Mathf.Max(screenWidth / ((float)width), screenHeight / ((float)height));
+            nativePointerHandler.SettingScreenParams(screenWidth, screenHeight, (width - screenWidth / scale) * .5f, (height - screenHeight / scale) * .5f, scale, scale);
         }
 
         #endregion
@@ -768,188 +575,41 @@ namespace TouchScript.InputSources.InputHandlers
 
         private Pointer.PointerButtonState updateButtons(Pointer.PointerButtonState current, PointerFlags flags, ButtonChangeType change)
         {
-            var currentUpDown = ((uint) current) & 0xFFFFFC00;
-            var pressed = ((uint) flags >> 4) & 0x1F;
+            var currentUpDown = ((uint)current) & 0xFFFFFC00;
+            var pressed = ((uint)flags >> 4) & 0x1F;
             var newUpDown = 0U;
-            if (change != ButtonChangeType.None) newUpDown = 1U << (10 + (int) change);
-            var combined = (Pointer.PointerButtonState) (pressed | newUpDown | currentUpDown);
+            if (change != ButtonChangeType.None) newUpDown = 1U << (10 + (int)change);
+            var combined = (Pointer.PointerButtonState)(pressed | newUpDown | currentUpDown);
             return combined;
         }
 
         private float getTouchPressure(ref PointerData data)
         {
-            var reliable = (data.Mask & (uint) TouchMask.Pressure) > 0;
+            var reliable = (data.Mask & (uint)TouchMask.Pressure) > 0;
             if (reliable) return data.Pressure / 1024f;
             return TouchPointer.DEFAULT_PRESSURE;
         }
 
         private float getTouchRotation(ref PointerData data)
         {
-            var reliable = (data.Mask & (uint) TouchMask.Orientation) > 0;
+            var reliable = (data.Mask & (uint)TouchMask.Orientation) > 0;
             if (reliable) return data.Rotation / 180f * Mathf.PI;
             return TouchPointer.DEFAULT_ROTATION;
         }
 
         private float getPenPressure(ref PointerData data)
         {
-            var reliable = (data.Mask & (uint) PenMask.Pressure) > 0;
+            var reliable = (data.Mask & (uint)PenMask.Pressure) > 0;
             if (reliable) return data.Pressure / 1024f;
             return PenPointer.DEFAULT_PRESSURE;
         }
 
         private float getPenRotation(ref PointerData data)
         {
-            var reliable = (data.Mask & (uint) PenMask.Rotation) > 0;
+            var reliable = (data.Mask & (uint)PenMask.Rotation) > 0;
             if (reliable) return data.Rotation / 180f * Mathf.PI;
             return PenPointer.DEFAULT_ROTATION;
         }
-
-        #endregion
-
-        #region p/invoke
-        /// <summary>
-        /// Windows property store guid to turn off edge gestures and 3-4 fingers gestures
-        /// </summary>
-        private static readonly Guid DISABLE_TOUCH_WHEN_FULLSCREEN = new("32CE38B2-2C9A-41B1-9BC5-B3784394AA44");
-        private static Guid IID_IPropertyStore = new("886D8EEB-8CF2-4446-8D02-CDBA1DBDCF99");
-        private const short VT_BOOL = 11;
-        private const short VT_EMPTY = 0;
-
-        protected enum TOUCH_API
-        {
-            WIN7,
-            WIN8
-        }
-
-        protected enum PointerEvent : uint
-        {
-            Enter = 0x0249,
-            Leave = 0x024A,
-            Update = 0x0245,
-            Down = 0x0246,
-            Up = 0x0247,
-            Cancelled = 0x1000
-        }
-
-        protected enum PointerType
-        {
-            Pointer = 0x00000001,
-            Touch = 0x00000002,
-            Pen = 0x00000003,
-            Mouse = 0x00000004,
-            TouchPad = 0x00000005
-        }
-
-        [Flags]
-        protected enum PointerFlags
-        {
-            None = 0x00000000,
-            New = 0x00000001,
-            InRange = 0x00000002,
-            InContact = 0x00000004,
-            FirstButton = 0x00000010,
-            SecondButton = 0x00000020,
-            ThirdButton = 0x00000040,
-            FourthButton = 0x00000080,
-            FifthButton = 0x00000100,
-            Primary = 0x00002000,
-            Confidence = 0x00004000,
-            Canceled = 0x00008000,
-            Down = 0x00010000,
-            Update = 0x00020000,
-            Up = 0x00040000,
-            Wheel = 0x00080000,
-            HWheel = 0x00100000,
-            CaptureChanged = 0x00200000,
-            HasTransform = 0x00400000
-        }
-
-        protected enum ButtonChangeType
-        {
-            None,
-            FirstDown,
-            FirstUp,
-            SecondDown,
-            SecondUp,
-            ThirdDown,
-            ThirdUp,
-            FourthDown,
-            FourthUp,
-            FifthDown,
-            FifthUp
-        }
-
-        [Flags]
-        protected enum TouchFlags
-        {
-            None = 0x00000000
-        }
-
-        [Flags]
-        protected enum TouchMask
-        {
-            None = 0x00000000,
-            ContactArea = 0x00000001,
-            Orientation = 0x00000002,
-            Pressure = 0x00000004
-        }
-
-        [Flags]
-        protected enum PenFlags
-        {
-            None = 0x00000000,
-            Barrel = 0x00000001,
-            Inverted = 0x00000002,
-            Eraser = 0x00000004
-        }
-
-        [Flags]
-        protected enum PenMask
-        {
-            None = 0x00000000,
-            Pressure = 0x00000001,
-            Rotation = 0x00000002,
-            TiltX = 0x00000004,
-            TiltY = 0x00000008
-        }
-
-        private enum FeedbackType : uint
-        {
-            FeedbackTouchContactVisualization = 1,
-            FeedbackPenBarrelVisualization = 2,
-            FeedbackPenTap = 3,
-            FeedbackDoubleTap = 4,
-            FeedbackPenPressAndHold = 5,
-            FeedbackPenRightTap = 6,
-            FeedbackTouchTap = 7,
-            FeedbackTouchDoubleTap = 8,
-            FeedbackTouchPressAndHold = 9,
-            FeedbackTouchRightTap = 10,
-            FeedbackGesturePressAndTap = 11,
-            FeedbackMax = 0xFFFFFFFF
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        protected struct PointerData
-        {
-            public PointerFlags PointerFlags;
-            public uint Flags;
-            public uint Mask;
-            public ButtonChangeType ChangedButtons;
-            public uint Rotation;
-            public uint Pressure;
-            public int TiltX;
-            public int TiltY;
-        }
-
-        [DllImport("WindowsTouch", CallingConvention = CallingConvention.StdCall)]
-        private static extern void Init(TOUCH_API api, NativeLog log, NativePointerDelegate pointerDelegate);
-
-        [DllImport("WindowsTouch", EntryPoint = "Dispose", CallingConvention = CallingConvention.StdCall)]
-        private static extern void DisposePlugin();
-
-        [DllImport("WindowsTouch", CallingConvention = CallingConvention.StdCall)]
-        private static extern void SetScreenParams(int width, int height, float offsetX, float offsetY, float scaleX, float scaleY);
 
         #endregion
     }

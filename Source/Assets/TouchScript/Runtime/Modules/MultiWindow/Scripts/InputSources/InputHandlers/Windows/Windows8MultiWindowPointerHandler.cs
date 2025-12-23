@@ -1,6 +1,8 @@
 ﻿#if UNITY_STANDALONE_WIN
 
 using System;
+using System.Runtime.InteropServices;
+using TouchScript.Debugging.Loggers;
 using TouchScript.InputSources.InputHandlers.Interop;
 using TouchScript.Pointers;
 using TouchScript.Utils;
@@ -12,40 +14,18 @@ namespace TouchScript.InputSources.InputHandlers
     sealed class Windows8MultiWindowPointerHandler : WindowsMultiWindowPointerHandler
     {
         /// <summary>
-        /// Should the primary pointer also dispatch a mouse pointer.
+        /// Enable processing mouse events
         /// </summary>
-        public bool MouseInPointer
-        {
-            get { return mouseInPointer; }
-            set
-            {
-                WindowsUtils.EnableMouseInPointer(value);
-                mouseInPointer = value;
-                if (mouseInPointer)
-                {
-                    if (mousePointer == null) mousePointer = internalAddMousePointer(Vector3.zero);
-                }
-                else
-                {
-                    if (mousePointer != null)
-                    {
-                        if ((mousePointer.Buttons & Pointer.PointerButtonState.AnyButtonPressed) != 0)
-                        {
-                            mousePointer.Buttons = PointerUtils.UpPressedButtons(mousePointer.Buttons);
-                            releasePointer(mousePointer);
-                        }
-                        removePointer(mousePointer);
-                    }
-                }
-            }
-        }
+        private bool enableMouse = true;
+        /// <summary>
+        /// Enable processing mouse events as touch pointers
+        /// </summary>
+        private bool enableMouseInPointer = true;
         
-        private bool mouseInPointer = true;
-        
-        public Windows8MultiWindowPointerHandler(int targetDisplay, IntPtr hWindow, PointerDelegate addPointer,
+        public Windows8MultiWindowPointerHandler(int targetDisplay, IntPtr hWindow, WindowProperties windowProperties, PointerDelegate addPointer,
             PointerDelegate updatePointer, PointerDelegate pressPointer, PointerDelegate releasePointer,
             PointerDelegate removePointer, PointerDelegate cancelPointer)
-            : base(targetDisplay, hWindow, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
+            : base(targetDisplay, hWindow, windowProperties, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
         {
             mousePool = new ObjectPool<MousePointer>(4, () => new MousePointer(this), null, resetPointer);
             penPool = new ObjectPool<PenPointer>(2, () => new PenPointer(this), null, resetPointer);
@@ -69,9 +49,8 @@ namespace TouchScript.InputSources.InputHandlers
                 penPointer = null;
             }
 
-            WindowsUtils.EnableMouseInPointer(false);
-#if !UNITY_EDITOR
-            foreach (var h in windowHandles) WindowsPointerHandler.ResetTouchSettingToWindow(h.Item1, h.Item2);
+#if !ENABLE_INPUT_SYSTEM
+            WindowsUtils.EnableMouseInPointer(false);   // it's a one-shot function, we cannot revert the value
 #endif
 
             base.Dispose();
@@ -81,7 +60,15 @@ namespace TouchScript.InputSources.InputHandlers
         public override bool UpdateInput()
         {
             base.UpdateInput();
-            return winTouchToInternalId.Count > 0;
+            
+            if(enableMouse && !enableMouseInPointer)
+            {
+                return winTouchToInternalId.Count > 0;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         /// <inheritdoc />
@@ -109,6 +96,45 @@ namespace TouchScript.InputSources.InputHandlers
             if (pointer is MousePointer) mousePool.Release(pointer as MousePointer);
             else if (pointer is PenPointer) penPool.Release(pointer as PenPointer);
             else base.INTERNAL_DiscardPointer(pointer);
+        }
+
+        /// <summary>
+        /// Updates the module based on if and how the mouse is processed
+        /// </summary>
+        /// <param name="enableMouse"></param>
+        /// <param name="enableMouseInPointer"></param>
+        public void UpdateMouse(bool enableMouse, bool enableMouseInPointer)
+        {
+            this.enableMouse = enableMouse;
+            this.enableMouseInPointer = enableMouseInPointer;
+
+#if !ENABLE_INPUT_SYSTEM
+            // We change how the process handles the mouse events only if we're not using the 'New Input System'
+            if (!WindowsUtils.EnableMouseInPointer(enableMouseInPointer))
+            {
+                UnityConsoleLogger.LogWarning(
+                    $"Cannot change \"IsMouseInPointer\" value into \"{enableMouseInPointer}\" maybe it was already set, current value: {WindowsUtils.IsMouseInPointerEnabled()}, " +
+                    $"GetLastWin32Error: {Marshal.GetLastWin32Error().ToString("X")}");
+            }
+#endif
+            if (pointerHandler != null) pointerHandler.SetMouseParams(messageCallback, enableMouse, enableMouseInPointer);
+
+            if (enableMouse && enableMouseInPointer)
+            {
+                if (mousePointer == null) mousePointer = internalAddMousePointer(Vector3.zero);
+            }
+            else
+            {
+                if (mousePointer != null)
+                {
+                    if ((mousePointer.Buttons & Pointer.PointerButtonState.AnyButtonPressed) != 0)
+                    {
+                        mousePointer.Buttons = PointerUtils.UpPressedButtons(mousePointer.Buttons);
+                        releasePointer(mousePointer);
+                    }
+                    removePointer(mousePointer);
+                }
+            }
         }
     }
 }

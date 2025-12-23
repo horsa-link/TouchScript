@@ -154,6 +154,7 @@ namespace TouchScript.InputSources.InputHandlers
                 return false;
             }
 
+            pos = displayRelativePos;   // FIXME:
             var remappedPos = new Vector2(0, 0);
             var updated = false;
 
@@ -278,6 +279,9 @@ namespace TouchScript.InputSources.InputHandlers
         }
 
         /// <inheritdoc />
+        public virtual void UpdateWindow() {}
+
+        /// <inheritdoc />
         public bool CancelPointer(Pointer pointer, bool shouldReturn)
         {
             if (pointer.Equals(mousePointer))
@@ -298,8 +302,6 @@ namespace TouchScript.InputSources.InputHandlers
 
             return false;
         }
-
-        public void UpdateWindowsInput(IntPtr[] hwnds) {}
 
         /// <summary>
         /// Releases resources.

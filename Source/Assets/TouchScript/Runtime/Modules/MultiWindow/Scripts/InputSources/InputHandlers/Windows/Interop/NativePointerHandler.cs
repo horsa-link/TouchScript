@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace TouchScript.InputSources.InputHandlers.Interop
 {
-    sealed class NativePointerHandler : IDisposable
+    sealed class WindowsMultiWindowNativePointerHandler : IDisposable
     {
         #region Native Methods
         
@@ -13,19 +13,19 @@ namespace TouchScript.InputSources.InputHandlers.Interop
         [DllImport("WindowsTouchMultiWindow")]
         private static extern Result PointerHandler_Destroy(IntPtr handle);
         [DllImport("WindowsTouchMultiWindow")]
-        private static extern Result PointerHandler_Initialize(IntPtr handle, MessageCallback messageCallback, int targetDisplay,
-            TOUCH_API api, IntPtr windowHandle, PointerCallback pointerCallback);
+        private static extern Result PointerHandler_Initialize(IntPtr handle, WindowsMultiWindowNativeLog messageCallback, int targetDisplay, TOUCH_API api, IntPtr windowHandle, WindowsMultiWindowNativePointerDelegate pointerCallback);
         [DllImport("WindowsTouchMultiWindow")]
-        private static extern Result PointerHandler_SetTargetDisplay(IntPtr handle, int targetDisplay);
+        private static extern Result PointerHandler_SetTargetDisplay(IntPtr handle, WindowsMultiWindowNativeLog messageCallback, int targetDisplay);
         [DllImport("WindowsTouchMultiWindow")]
-        private static extern Result PointerHandler_SetScreenParams(IntPtr handle, MessageCallback messageCallback,
-            int width, int height, float offsetX, float offsetY, float scaleX, float scaleY);
-        
+        private static extern Result PointerHandler_SetDisplayParams(IntPtr handle, WindowsMultiWindowNativeLog messageCallback, int width, int height, float offsetX, float offsetY, float scaleX, float scaleY);
+        [DllImport("WindowsTouchMultiWindow")]
+        private static extern Result PointerHandler_SetMouseParams(IntPtr handle, WindowsMultiWindowNativeLog messageCallback, bool enableMouse, bool enableMouseInPointer);
+
         #endregion
 
         private IntPtr handle;
 
-        internal NativePointerHandler()
+        internal WindowsMultiWindowNativePointerHandler()
         {
             // Create native resources
             handle = new IntPtr();
@@ -37,7 +37,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             }
         }
 
-        ~NativePointerHandler()
+        ~WindowsMultiWindowNativePointerHandler()
         {
             Dispose(false);
         }
@@ -64,7 +64,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             }
         }
 
-        internal void Initialize(MessageCallback messageCallback, int targetDisplay, TOUCH_API api, IntPtr hWindow, PointerCallback pointerCallback)
+        internal void Initialize(WindowsMultiWindowNativeLog messageCallback, int targetDisplay, TOUCH_API api, IntPtr hWindow, WindowsMultiWindowNativePointerDelegate pointerCallback)
         {
             var result = PointerHandler_Initialize(handle, messageCallback, targetDisplay, api, hWindow, pointerCallback);
 #if TOUCHSCRIPT_DEBUG
@@ -72,17 +72,25 @@ namespace TouchScript.InputSources.InputHandlers.Interop
 #endif
         }
 
-        internal void SetTargetDisplay(int value)
+        internal void SetTargetDisplay(WindowsMultiWindowNativeLog messageCallback, int value)
         {
-            var result = PointerHandler_SetTargetDisplay(handle, value);
+            var result = PointerHandler_SetTargetDisplay(handle, messageCallback, value);
 #if TOUCHSCRIPT_DEBUG
             ResultHelper.CheckResult(result);
 #endif
         }
 
-        internal void SetScreenParams(MessageCallback messageCallback, int width, int height, float offsetX, float offsetY, float scaleX, float scaleY)
+        internal void SetDisplayParams(WindowsMultiWindowNativeLog messageCallback, int width, int height, float offsetX, float offsetY, float scaleX, float scaleY)
         {
-            var result = PointerHandler_SetScreenParams(handle, messageCallback, width, height, offsetX, offsetY, scaleX, scaleY);
+            var result = PointerHandler_SetDisplayParams(handle, messageCallback, width, height, offsetX, offsetY, scaleX, scaleY);
+#if TOUCHSCRIPT_DEBUG
+            ResultHelper.CheckResult(result);
+#endif
+        }
+
+        internal void SetMouseParams(WindowsMultiWindowNativeLog messageCallback, bool enableMouse, bool enableMouseInPointer)
+        {
+            var result = PointerHandler_SetMouseParams(handle, messageCallback, enableMouse, enableMouseInPointer);
 #if TOUCHSCRIPT_DEBUG
             ResultHelper.CheckResult(result);
 #endif
