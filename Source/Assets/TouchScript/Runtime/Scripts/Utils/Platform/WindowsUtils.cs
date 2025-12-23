@@ -18,10 +18,10 @@ namespace TouchScript.Utils.Platform
     /// </summary>
     public static class WindowsUtils
     {
-        public const int MONITOR_DEFAULTTONEAREST = 2;
+        private const int MONITOR_DEFAULTTONEAREST = 2;
 
-        public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
-        public delegate bool EnumWindowsChildProc(IntPtr hWnd, IntPtr lParam);
+        private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+        private delegate bool EnumWindowsChildProc(IntPtr hWnd, IntPtr lParam);
 
         /// <summary>
         /// Retrieves the native monitor resolution where the active window is.
@@ -284,9 +284,11 @@ namespace TouchScript.Utils.Platform
         public static extern int SHGetPropertyStoreForWindow(IntPtr hWnd, ref Guid riid, out IPropertyStore ppv);
 
         [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetWindowFeedbackSetting(IntPtr hWnd, uint feedback, uint dwFlags, uint size, IntPtr config);
 
         [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetWindowFeedbackSetting(IntPtr hWnd, uint feedback, uint dwFlags, ref uint size, IntPtr config);
 
         [DllImport("user32.dll", SetLastError = true)]
@@ -296,6 +298,7 @@ namespace TouchScript.Utils.Platform
         public static extern IntPtr MonitorFromWindow(IntPtr hWnd, uint dwFlags);
 
         [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
 
         [DllImport("Kernel32.dll", SetLastError = true)]
