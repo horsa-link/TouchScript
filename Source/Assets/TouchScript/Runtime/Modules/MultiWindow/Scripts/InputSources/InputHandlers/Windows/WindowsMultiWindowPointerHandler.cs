@@ -99,7 +99,6 @@ namespace TouchScript.InputSources.InputHandlers
 
 #if !UNITY_EDITOR
             nativeWindowHandler.ResetWindowProperties();
-            nativeWindowHandler.Dispose();
             nativeWindowHandler = null;
 #endif
             pointerHandler.Dispose();
