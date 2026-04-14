@@ -6,7 +6,8 @@
 #include "WindowsTouchMultiWindowPointerHandler.h"
 
 const wchar_t* instancePropName = L"__PointerHandler_Prop_Instance__";
-//MessageCallback globalMessageCallback = NULL;	// FIXME: debug purpose
+MessageCallback globalMessageCallback = NULL;	// FIXME: debug purpose
+PointerHandler* testHandler = NULL;                 // FIXME: debug purpose
 
 PointerHandler::PointerHandler()
     : mTargetDisplay(-1)
@@ -69,7 +70,7 @@ Result PointerHandler::initialize(MessageCallback messageCallback, int targetDis
         return R_ERROR_NULL_POINTER;
     }
 
-    //globalMessageCallback = messageCallback;	// FIXME: debug purpose
+    globalMessageCallback = messageCallback;	// FIXME: debug purpose
     mTargetDisplay = targetDisplay;
     mApi = api;
     mHWnd = hWnd;
@@ -178,6 +179,9 @@ bool PointerHandler::decodeWin8Touches(UINT msg, WPARAM wParam, LPARAM lParam)
 
     POINTER_INFO pointerInfo;
     if (!mGetPointerInfo(pointerId, &pointerInfo)) return true;
+
+    std::string m = "0x" + (std::ostringstream{} << std::uppercase << std::hex << pointerInfo.pointerType).str();
+    testHandler->sendMessage(globalMessageCallback, MT_ERROR, m);
 
     POINT p;
     p.x = pointerInfo.ptPixelLocation.x;
@@ -292,7 +296,11 @@ void PointerHandler::decodeWin7Touches(UINT msg, WPARAM wParam, LPARAM lParam)
 LRESULT CALLBACK PointerHandler::wndProc8(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     PointerHandler* handler = reinterpret_cast<PointerHandler*>(GetProp(hWnd, instancePropName));
-        
+    
+    testHandler = handler;
+    std::string m = "0x" + (std::ostringstream{} << std::uppercase << std::hex << msg).str();
+    handler->sendMessage(globalMessageCallback, MT_ERROR, m);
+
     switch (msg)
     {
     case WM_TOUCH:
