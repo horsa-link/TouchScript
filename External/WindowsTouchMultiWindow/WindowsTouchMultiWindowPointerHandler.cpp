@@ -180,7 +180,7 @@ bool PointerHandler::decodeWin8Touches(UINT msg, WPARAM wParam, LPARAM lParam)
     POINTER_INFO pointerInfo;
     if (!mGetPointerInfo(pointerId, &pointerInfo)) return true;
 
-    std::string m = "0x" + (std::ostringstream{} << std::uppercase << std::hex << pointerInfo.pointerType).str();
+    std::string m = "pointerType: 0x" + (std::ostringstream{} << std::uppercase << std::hex << pointerInfo.pointerType).str();
     testHandler->sendMessage(globalMessageCallback, MT_ERROR, m);
 
     POINT p;
@@ -298,8 +298,8 @@ LRESULT CALLBACK PointerHandler::wndProc8(HWND hWnd, UINT msg, WPARAM wParam, LP
     PointerHandler* handler = reinterpret_cast<PointerHandler*>(GetProp(hWnd, instancePropName));
     
     testHandler = handler;
-    std::string m = "0x" + (std::ostringstream{} << std::uppercase << std::hex << msg).str();
-    handler->sendMessage(globalMessageCallback, MT_ERROR, m);
+    //std::string m = "0x" + (std::ostringstream{} << std::uppercase << std::hex << msg).str();
+    //handler->sendMessage(globalMessageCallback, MT_ERROR, m);
 
     switch (msg)
     {
