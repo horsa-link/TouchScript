@@ -180,8 +180,8 @@ bool PointerHandler::decodeWin8Touches(UINT msg, WPARAM wParam, LPARAM lParam)
     POINTER_INFO pointerInfo;
     if (!mGetPointerInfo(pointerId, &pointerInfo)) return true;
 
-    std::string m = "pointerType: 0x" + (std::ostringstream{} << std::uppercase << std::hex << pointerInfo.pointerType).str();
-    testHandler->sendMessage(globalMessageCallback, MT_ERROR, m);
+    //std::string m = "pointerType: 0x" + (std::ostringstream{} << std::uppercase << std::hex << pointerInfo.pointerType).str();
+    //testHandler->sendMessage(globalMessageCallback, MT_ERROR, m);
 
     POINT p;
     p.x = pointerInfo.ptPixelLocation.x;
