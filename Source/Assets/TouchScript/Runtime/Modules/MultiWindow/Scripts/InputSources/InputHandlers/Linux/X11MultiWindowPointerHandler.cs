@@ -129,74 +129,81 @@ namespace TouchScript.InputSources.InputHandlers
         [AOT.MonoPInvokeCallback(typeof(PointerCallback))]
         private void OnNativePointerEvent(int id, PointerEvent evt, PointerType type, Vector2 position, PointerData data)
         {
-            switch (type)
+            try
             {
-                case PointerType.Mouse:
-                    {
-                        switch (evt)
+                switch (type)
+                {
+                    case PointerType.Mouse:
                         {
-                            case PointerEvent.Down:
-                                mousePointer.Buttons = updateButtons(mousePointer.Buttons, data.PointerFlags,
-                                    data.ChangedButtons);
-                                pressPointer(mousePointer);
-                                break;
-                            case PointerEvent.Update:
-                                mousePointer.Position = position;
-                                mousePointer.Buttons = updateButtons(mousePointer.Buttons, data.PointerFlags,
-                                    data.ChangedButtons);
-                                updatePointer(mousePointer);
-                                break;
-                            case PointerEvent.Up:
-                                mousePointer.Buttons = updateButtons(mousePointer.Buttons, data.PointerFlags,
-                                    data.ChangedButtons);
-                                releasePointer(mousePointer);
-                                break;
+                            switch (evt)
+                            {
+                                case PointerEvent.Down:
+                                    mousePointer.Buttons = updateButtons(mousePointer.Buttons, data.PointerFlags,
+                                        data.ChangedButtons);
+                                    pressPointer(mousePointer);
+                                    break;
+                                case PointerEvent.Update:
+                                    mousePointer.Position = position;
+                                    mousePointer.Buttons = updateButtons(mousePointer.Buttons, data.PointerFlags,
+                                        data.ChangedButtons);
+                                    updatePointer(mousePointer);
+                                    break;
+                                case PointerEvent.Up:
+                                    mousePointer.Buttons = updateButtons(mousePointer.Buttons, data.PointerFlags,
+                                        data.ChangedButtons);
+                                    releasePointer(mousePointer);
+                                    break;
+                            }
                         }
-                    }
-                    break;
-                case PointerType.Touch:
-                    {
-                        TouchPointer touchPointer;
-                        switch (evt)
+                        break;
+                    case PointerType.Touch:
                         {
-                            case PointerEvent.Down:
-                                if (!x11TouchToInternalId.ContainsKey(id))
-                                {
-                                    // Only add touch pointer when there is none for the given native touch pointer id
-                                    // It seems in some cases the system reports multiple events of this type with the
-                                    // same id
-                                    touchPointer = internalAddTouchPointer(position);
+                            TouchPointer touchPointer;
+                            switch (evt)
+                            {
+                                case PointerEvent.Down:
+                                    if (!x11TouchToInternalId.ContainsKey(id))
+                                    {
+                                        // Only add touch pointer when there is none for the given native touch pointer id
+                                        // It seems in some cases the system reports multiple events of this type with the
+                                        // same id
+                                        touchPointer = internalAddTouchPointer(position);
+                                        touchPointer.Pressure = getTouchPressure(ref data);
+                                        touchPointer.Rotation = getTouchRotation(ref data);
+                                        x11TouchToInternalId.Add(id, touchPointer);
+                                    }
+                                    else
+                                    {
+                                        UnityConsoleLogger.LogError($"Duplicate PointerEvent.Down event for id {id}");
+                                    }
+                                    break;
+                                case PointerEvent.Update:
+                                    if (!x11TouchToInternalId.TryGetValue(id, out touchPointer)) return;
+                                    touchPointer.Position = position;
                                     touchPointer.Pressure = getTouchPressure(ref data);
                                     touchPointer.Rotation = getTouchRotation(ref data);
-                                    x11TouchToInternalId.Add(id, touchPointer);
-                                }
-                                else
-                                {
-                                    UnityConsoleLogger.LogError($"Duplicate PointerEvent.Down event for id {id}");
-                                }
-                                break;
-                            case PointerEvent.Update:
-                                if (!x11TouchToInternalId.TryGetValue(id, out touchPointer)) return;
-                                touchPointer.Position = position;
-                                touchPointer.Pressure = getTouchPressure(ref data);
-                                touchPointer.Rotation = getTouchRotation(ref data);
-                                updatePointer(touchPointer);
-                                break;
-                            case PointerEvent.Up:
-                                if (x11TouchToInternalId.TryGetValue(id, out touchPointer))
-                                {
-                                    x11TouchToInternalId.Remove(id);
-                                    internalRemoveTouchPointer(touchPointer);
-                                }
-                                else
-                                {
-                                    UnityConsoleLogger.LogError($"Duplicate PointerEvent.Up event for id {id}");
-                                }
-                        
-                                break;
+                                    updatePointer(touchPointer);
+                                    break;
+                                case PointerEvent.Up:
+                                    if (x11TouchToInternalId.TryGetValue(id, out touchPointer))
+                                    {
+                                        x11TouchToInternalId.Remove(id);
+                                        internalRemoveTouchPointer(touchPointer);
+                                    }
+                                    else
+                                    {
+                                        UnityConsoleLogger.LogError($"Duplicate PointerEvent.Up event for id {id}");
+                                    }
+
+                                    break;
+                            }
                         }
-                    }
-                    break;
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                UnityConsoleLogger.LogError(e.Message);
             }
         }
 

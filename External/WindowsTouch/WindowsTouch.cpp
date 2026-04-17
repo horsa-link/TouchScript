@@ -3,6 +3,7 @@
 */
 
 #include "WindowsTouch.h"
+#include <exception>
 
 extern "C" 
 {
@@ -135,7 +136,14 @@ void decodeWin8Touches(UINT msg, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 
-	_delegate(pointerId, msg, pointerInfo.pointerType, position, data);
+	try
+	{
+		_delegate(pointerId, msg, pointerInfo.pointerType, position, data);
+	}
+	catch (const std::exception&)
+	{
+		//
+	}
 }
 
 void decodeWin7Touches(UINT msg, WPARAM wParam, LPARAM lParam)
@@ -173,7 +181,14 @@ void decodeWin7Touches(UINT msg, WPARAM wParam, LPARAM lParam)
 			msg = WM_POINTERUPDATE;
 		}
 
-		_delegate(touch.dwID, msg, PT_TOUCH, position, data);
+		try
+		{
+			_delegate(touch.dwID, msg, PT_TOUCH, position, data);
+		}
+		catch (const std::exception&)
+		{
+			//
+		}
 	}
 
 	CloseTouchInputHandle((HTOUCHINPUT)lParam);
@@ -184,7 +199,14 @@ void log(const wchar_t* str)
 {
 #if _DEBUG
 	BSTR bstr = SysAllocString(str);
-	_log(bstr);
+	try
+	{
+		_log(bstr);
+	}
+	catch (const std::exception&)
+	{
+		//
+	}
 	SysFreeString(bstr);
 #endif
 }

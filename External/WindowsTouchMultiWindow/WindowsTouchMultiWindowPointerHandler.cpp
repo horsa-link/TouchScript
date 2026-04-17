@@ -160,14 +160,18 @@ void PointerHandler::sendMessage(MessageCallback messageCallback, MessageType me
             "[0x" + (std::ostringstream{} << std::uppercase << std::hex << reinterpret_cast<uintptr_t>(mHWnd)).str() + "] " +
             message;
 
-        // Allocate char array
         char* cstr = new char[st.length() + 1];
         strcpy_s(cstr, st.length() + 1, st.c_str());
 
-        // Dispatch to callback
-        messageCallback((int)messageType, cstr);
+        try
+        {
+            messageCallback((int)messageType, cstr);
+        }
+        catch (const std::exception&)
+        {
+            //
+        }
 
-        // Unalloc char array
         delete[] cstr;
     }
 }
@@ -236,7 +240,15 @@ bool PointerHandler::decodeWin8Touches(UINT msg, WPARAM wParam, LPARAM lParam)
         break;
     }
 
-    mPointerCallback(pointerId, msg, pointerInfo.pointerType, position, data);
+    try
+    {
+        mPointerCallback(pointerId, msg, pointerInfo.pointerType, position, data);
+    }
+    catch (const std::exception&)
+    {
+        //
+    }
+
     return true;
 }
 
@@ -275,7 +287,14 @@ void PointerHandler::decodeWin7Touches(UINT msg, WPARAM wParam, LPARAM lParam)
             msg = WM_POINTERUPDATE;
         }
 
-        mPointerCallback(touch.dwID, msg, PT_TOUCH, position, data);
+        try
+        {
+            mPointerCallback(touch.dwID, msg, PT_TOUCH, position, data);
+        }
+        catch (const std::exception&)
+        {
+            //
+        }
     }
 
     CloseTouchInputHandle((HTOUCHINPUT)lParam);
