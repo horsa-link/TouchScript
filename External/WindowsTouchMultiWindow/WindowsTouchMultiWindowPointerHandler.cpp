@@ -229,6 +229,7 @@ bool PointerHandler::decodeWin8Touches(UINT msg, WPARAM wParam, LPARAM lParam)
 
         break;
     case PT_PEN:
+        return true;
         POINTER_PEN_INFO penInfo;
         mGetPointerPenInfo(pointerId, &penInfo);
         data.flags = penInfo.penFlags;
