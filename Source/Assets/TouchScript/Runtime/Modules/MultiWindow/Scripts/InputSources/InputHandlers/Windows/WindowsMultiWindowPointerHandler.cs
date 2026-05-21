@@ -148,130 +148,144 @@ namespace TouchScript.InputSources.InputHandlers
         [MonoPInvokeCallback(typeof(WindowsMultiWindowNativeLog))]
         private void onNativeMessage(int messageType, string message)
         {
-            switch (messageType)
+            try
             {
-                case 2:
-                    UnityConsoleLogger.LogWarning($"[WindowsTouchMultiWindow.dll] {message}");
-                    break;
-                case 3:
-                    UnityConsoleLogger.LogError($"[WindowsTouchMultiWindow.dll] {message}");
-                    break;
-                default:
-                    UnityConsoleLogger.Log($"[WindowsTouchMultiWindow.dll] {message}");
-                    break;
+                switch (messageType)
+                {
+                    case 2:
+                        UnityConsoleLogger.LogWarning($"[WindowsTouchMultiWindow.dll] {message}");
+                        break;
+                    case 3:
+                        UnityConsoleLogger.LogError($"[WindowsTouchMultiWindow.dll] {message}");
+                        break;
+                    default:
+                        UnityConsoleLogger.Log($"[WindowsTouchMultiWindow.dll] {message}");
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                UnityConsoleLogger.LogError($"[WindowsTouchMultiWindow.dll] {e.Message}");
             }
         }
 
         private void onNativePointer(int id, PointerEvent evt, PointerType type, Vector2 position, PointerData data)
         {
-            switch (type)
+            try
             {
-                case PointerType.Mouse:
-                    switch (evt)
-                    {
-                        // Enter and Exit are not used - mouse is always present
-                        // TODO: how does it work with 2+ mice?
-                        case PointerEvent.Enter:
-                            throw new NotImplementedException("This is not supposed to be called o.O");
-                        case PointerEvent.Leave:
-                            break;
-                        case PointerEvent.Down:
-                            mousePointer.Buttons = updateButtons(mousePointer.Buttons, data.PointerFlags, data.ChangedButtons);
-                            pressPointer(mousePointer);
-                            break;
-                        case PointerEvent.Up:
-                            mousePointer.Buttons = updateButtons(mousePointer.Buttons, data.PointerFlags, data.ChangedButtons);
-                            releasePointer(mousePointer);
-                            break;
-                        case PointerEvent.Update:
-                            mousePointer.Position = position;
-                            mousePointer.Buttons = updateButtons(mousePointer.Buttons, data.PointerFlags, data.ChangedButtons);
-                            updatePointer(mousePointer);
-                            break;
-                        case PointerEvent.Cancelled:
-                            cancelPointer(mousePointer);
-                            // can't cancel the mouse pointer, it is always present
-                            mousePointer = internalAddMousePointer(mousePointer.Position);
-                            break;
-                    }
-                    break;
-                case PointerType.Touch:
-                    TouchPointer touchPointer;
-                    switch (evt)
-                    {
-                        case PointerEvent.Enter:
-                            break;
-                        case PointerEvent.Leave:
-                            // Sometimes Windows might not send Up, so have to execute touch release logic here.
-                            // Has been working fine on test devices so far.
-                            if (winTouchToInternalId.TryGetValue(id, out touchPointer))
-                            {
-                                winTouchToInternalId.Remove(id);
-                                internalRemoveTouchPointer(touchPointer);
-                            }
-                            break;
-                        case PointerEvent.Down:
-                            touchPointer = internalAddTouchPointer(position);
-                            touchPointer.Rotation = getTouchRotation(ref data);
-                            touchPointer.Pressure = getTouchPressure(ref data);
-                            winTouchToInternalId.Add(id, touchPointer);
-                            break;
-                        case PointerEvent.Up:
-                            break;
-                        case PointerEvent.Update:
-                            if (!winTouchToInternalId.TryGetValue(id, out touchPointer)) return;
-                            touchPointer.Position = position;
-                            touchPointer.Rotation = getTouchRotation(ref data);
-                            touchPointer.Pressure = getTouchPressure(ref data);
-                            updatePointer(touchPointer);
-                            break;
-                        case PointerEvent.Cancelled:
-                            if (winTouchToInternalId.TryGetValue(id, out touchPointer))
-                            {
-                                winTouchToInternalId.Remove(id);
-                                cancelPointer(touchPointer);
-                            }
-                            break;
-                    }
-                    break;
-                case PointerType.Pen:
-                    switch (evt)
-                    {
-                        case PointerEvent.Enter:
-                            penPointer = internalAddPenPointer(position);
-                            penPointer.Pressure = getPenPressure(ref data);
-                            penPointer.Rotation = getPenRotation(ref data);
-                            break;
-                        case PointerEvent.Leave:
-                            if (penPointer == null) break;
-                            internalRemovePenPointer(penPointer);
-                            break;
-                        case PointerEvent.Down:
-                            if (penPointer == null) break;
-                            penPointer.Buttons = updateButtons(penPointer.Buttons, data.PointerFlags, data.ChangedButtons);
-                            penPointer.Pressure = getPenPressure(ref data);
-                            penPointer.Rotation = getPenRotation(ref data);
-                            pressPointer(penPointer);
-                            break;
-                        case PointerEvent.Up:
-                            if (penPointer == null) break;
-                            mousePointer.Buttons = updateButtons(penPointer.Buttons, data.PointerFlags, data.ChangedButtons);
-                            releasePointer(penPointer);
-                            break;
-                        case PointerEvent.Update:
-                            if (penPointer == null) break;
-                            penPointer.Position = position;
-                            penPointer.Pressure = getPenPressure(ref data);
-                            penPointer.Rotation = getPenRotation(ref data);
-                            penPointer.Buttons = updateButtons(penPointer.Buttons, data.PointerFlags, data.ChangedButtons);
-                            updatePointer(penPointer);
-                            break;
-                        case PointerEvent.Cancelled:
-                            if (penPointer == null) break;
-                            cancelPointer(penPointer);
-                            break;
-                    }
-                    break;
+                switch (type)
+                {
+                    case PointerType.Mouse:
+                        switch (evt)
+                        {
+                            // Enter and Exit are not used - mouse is always present
+                            // TODO: how does it work with 2+ mice?
+                            case PointerEvent.Enter:
+                                throw new NotImplementedException("This is not supposed to be called o.O");
+                            case PointerEvent.Leave:
+                                break;
+                            case PointerEvent.Down:
+                                mousePointer.Buttons = updateButtons(mousePointer.Buttons, data.PointerFlags, data.ChangedButtons);
+                                pressPointer(mousePointer);
+                                break;
+                            case PointerEvent.Up:
+                                mousePointer.Buttons = updateButtons(mousePointer.Buttons, data.PointerFlags, data.ChangedButtons);
+                                releasePointer(mousePointer);
+                                break;
+                            case PointerEvent.Update:
+                                mousePointer.Position = position;
+                                mousePointer.Buttons = updateButtons(mousePointer.Buttons, data.PointerFlags, data.ChangedButtons);
+                                updatePointer(mousePointer);
+                                break;
+                            case PointerEvent.Cancelled:
+                                cancelPointer(mousePointer);
+                                // can't cancel the mouse pointer, it is always present
+                                mousePointer = internalAddMousePointer(mousePointer.Position);
+                                break;
+                        }
+                        break;
+                    case PointerType.Touch:
+                        TouchPointer touchPointer;
+                        switch (evt)
+                        {
+                            case PointerEvent.Enter:
+                                break;
+                            case PointerEvent.Leave:
+                                // Sometimes Windows might not send Up, so have to execute touch release logic here.
+                                // Has been working fine on test devices so far.
+                                if (winTouchToInternalId.TryGetValue(id, out touchPointer))
+                                {
+                                    winTouchToInternalId.Remove(id);
+                                    internalRemoveTouchPointer(touchPointer);
+                                }
+                                break;
+                            case PointerEvent.Down:
+                                touchPointer = internalAddTouchPointer(position);
+                                touchPointer.Rotation = getTouchRotation(ref data);
+                                touchPointer.Pressure = getTouchPressure(ref data);
+                                winTouchToInternalId.Add(id, touchPointer);
+                                break;
+                            case PointerEvent.Up:
+                                break;
+                            case PointerEvent.Update:
+                                if (!winTouchToInternalId.TryGetValue(id, out touchPointer)) return;
+                                touchPointer.Position = position;
+                                touchPointer.Rotation = getTouchRotation(ref data);
+                                touchPointer.Pressure = getTouchPressure(ref data);
+                                updatePointer(touchPointer);
+                                break;
+                            case PointerEvent.Cancelled:
+                                if (winTouchToInternalId.TryGetValue(id, out touchPointer))
+                                {
+                                    winTouchToInternalId.Remove(id);
+                                    cancelPointer(touchPointer);
+                                }
+                                break;
+                        }
+                        break;
+                    case PointerType.Pen:
+                        switch (evt)
+                        {
+                            case PointerEvent.Enter:
+                                penPointer = internalAddPenPointer(position);
+                                penPointer.Pressure = getPenPressure(ref data);
+                                penPointer.Rotation = getPenRotation(ref data);
+                                break;
+                            case PointerEvent.Leave:
+                                if (penPointer == null) break;
+                                internalRemovePenPointer(penPointer);
+                                break;
+                            case PointerEvent.Down:
+                                if (penPointer == null) break;
+                                penPointer.Buttons = updateButtons(penPointer.Buttons, data.PointerFlags, data.ChangedButtons);
+                                penPointer.Pressure = getPenPressure(ref data);
+                                penPointer.Rotation = getPenRotation(ref data);
+                                pressPointer(penPointer);
+                                break;
+                            case PointerEvent.Up:
+                                if (penPointer == null) break;
+                                mousePointer.Buttons = updateButtons(penPointer.Buttons, data.PointerFlags, data.ChangedButtons);
+                                releasePointer(penPointer);
+                                break;
+                            case PointerEvent.Update:
+                                if (penPointer == null) break;
+                                penPointer.Position = position;
+                                penPointer.Pressure = getPenPressure(ref data);
+                                penPointer.Rotation = getPenRotation(ref data);
+                                penPointer.Buttons = updateButtons(penPointer.Buttons, data.PointerFlags, data.ChangedButtons);
+                                updatePointer(penPointer);
+                                break;
+                            case PointerEvent.Cancelled:
+                                if (penPointer == null) break;
+                                cancelPointer(penPointer);
+                                break;
+                        }
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                UnityConsoleLogger.LogError($"[WindowsTouchMultiWindow.dll] {e.Message}");
             }
         }
         
